@@ -1,5 +1,3 @@
-"use Strict";
-
 var express = require('express');
 var router = express.Router();
 var assignmentModule = require('../ObjectMethods/assignmentMethods');
@@ -60,7 +58,7 @@ router.get('/:id', (req, res) => {
 // =====================================
 // Update===============================
 // =====================================
-router.post('/update', (req,res) => {
+router.put('/update', (req,res) => {
     let id = req.body.id;
     let name = req.body.name;
     let description = req.body.description;
