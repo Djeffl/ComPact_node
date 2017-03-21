@@ -17,8 +17,9 @@ router.route('/create')
     // Create user
     .post((req,res) => {
         console.log(req.body);
-        var name = req.body.name;
-        var description = req.body.description;
+        let id = req.body.id;
+        let name = req.body.name;
+        let description = req.body.description;
         
         assignmentModule.assignmentMethods.create({'name': name, 'description': description}).then(assignment => {
             console.log("solved");

@@ -16,11 +16,13 @@ exports.assignmentMethods = {
 	 * params(String, String)
 	 */
     create: function(...params){
+		let name = params.name;
+		let description = params.description
 		return new Promise((resolve, reject) => {
 			//create new assignment
 			var newassignment = new Assignment({ 
-						name: params.name,
-                        describtion: params.description
+						'name': params.name,
+                        'description': params.description
 			});
 			//save assignment
 			newassignment.save({}, (err, assignment) => {
@@ -73,8 +75,9 @@ exports.assignmentMethods = {
      * UPDATE
      */
     update: function(id, ...params){
-        let name = params.name;
-        let description = params.description;
+        // let name = params.name;
+        // let description = params.description;
+		console.log(params);
         return new Promise((resolve, reject) => {	
             Assignment.update(
 				{'id': id},
@@ -95,7 +98,7 @@ exports.assignmentMethods = {
                 return reject(err);
             }
             //return confirm delete message
-            var response = {
+            let response = {
                 message: "Todo successfully deleted",
                 id: assignment._id
             };
