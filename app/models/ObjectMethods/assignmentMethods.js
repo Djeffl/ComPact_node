@@ -1,11 +1,10 @@
-"use strict";
+"use Strict";
 
 var Assignment   = require('../assignment'); // get mongoose model
 var session = require('express-session')
 var mongoose = require('mongoose');
 var LocalStrategy = require('passport-local').Strategy;
 var async = require('async');
-
 var ejs = require("ejs");
 var path = require("path");
 var fs =require("fs");

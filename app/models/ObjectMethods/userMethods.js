@@ -1,4 +1,4 @@
-"use strict";
+"use Strict";
 
 var User   = require('../user'); // get mongoose model
 var session = require('express-session')
@@ -9,10 +9,8 @@ var LocalStrategy = require('passport-local').Strategy;
 var bcrypt = require('bcrypt-nodejs');
 var async = require('async');
 var jwt = require('../../../services/jwt');
-
 var mail = require('../lib/mail');
 var mailConfig = require('../../../config/mail');
-
 var ejs = require("ejs");
 var path = require("path");
 var fs =require("fs");
