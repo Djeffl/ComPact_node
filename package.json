@@ -1,0 +1,42 @@
+{
+  "name": "compact",
+  "version": "1.0.0",
+  "description": "Stage applicatie",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "compact"
+  ],
+  "author": "Jeff Liekens",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.1.5",
+    "bcrypt-nodejs": "0.0.3",
+    "bluebird": "^3.4.7",
+    "body-parser": "^1.16.1",
+    "cookie-parser": "^1.4.3",
+    "cookieparser": "^0.1.0",
+    "crypto": "0.0.3",
+    "ejs": "^2.5.6",
+    "express": "^4.14.1",
+    "express-session": "^1.15.1",
+    "mongoose": "^4.8.4",
+    "mongoose-unique-validator": "^1.0.3",
+    "morgan": "~1.0.0",
+    "nodemailer": "^3.1.3",
+    "passport": "^0.1.18",
+    "passport-local": "^0.1.6",
+    "password-reset": "^0.1.4",
+    "path": "^0.12.7",
+    "rand-token": "^0.3.0"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "mocha": "^3.2.0",
+    "nodemon": "^1.11.0",
+    "should": "^11.2.0"
+  }
+}
