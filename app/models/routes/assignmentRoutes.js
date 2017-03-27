@@ -1,8 +1,8 @@
-var express = require('express');
-var router = express.Router();
-var assignmentModule = require('../ObjectMethods/assignmentMethods');
-var mongoose = require('mongoose');
-var async = require('async');
+let express = require('express');
+let router = express.Router();
+let assignmentModule = require('../ObjectMethods/assignmentMethods');
+let mongoose = require('mongoose');
+let async = require('async');
 
 
 // =====================================
@@ -16,12 +16,12 @@ router.route('/create')
     })
     // Create user
     .post((req,res) => {
-        console.log(req.body);
-        let id = req.body.id;
+        let adminId = req.body.adminId;
+        let userId = req.body.userId;
         let name = req.body.name;
         let description = req.body.description;
         
-        assignmentModule.assignmentMethods.create({'name': name, 'description': description}).then(assignment => {
+        assignmentModule.assignmentMethods.create({'name': name, 'description': description, 'adminId': adminId, 'userId': userId}).then(assignment => {
             console.log("solved");
             res.status(200).send({
                 'assignment': assignment

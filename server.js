@@ -9,15 +9,13 @@ mongoose.Promise = require("bluebird"); // NOTE: bluebird's promise performance 
 //Configuration server requirements
 let morgan = require('morgan');
 let bodyParser = require('body-parser');
-let configDB = require('./config/database');
-
-require('./config/passport')(app);
+let configDB = require('./config/config');
 require("ejs");
 //Require ROUTES
 let api = require("./app/models/routes/api");
 let index = require("./app/models/routes/indexRoutes");
 // Configuration =================================================================================================================
-mongoose.connect(configDB.url); //connect DB
+mongoose.connect(configDB.urlDatabase); //connect DB
 app.use(morgan('dev')); // log every request to the console
 app.use(express.static('public'));
 app.use(cookieParser());
