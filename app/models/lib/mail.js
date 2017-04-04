@@ -38,7 +38,6 @@ function options(from, to, subject, text, html){
 function sendMail(transporter, mailOptions){
     return new Promise((resolve,reject) => {
         //HIER STOPT HET ergens!ç!!
-        console.log("okokokoko");
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
                 console.log('this is bad');

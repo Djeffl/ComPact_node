@@ -1,7 +1,6 @@
 var Assignment   = require('../assignment'); // get mongoose model
 var session = require('express-session')
 var mongoose = require('mongoose');
-var LocalStrategy = require('passport-local').Strategy;
 var async = require('async');
 var ejs = require("ejs");
 var path = require("path");
@@ -12,86 +11,40 @@ exports.assignmentMethods = {
 	 * CREATE
 	 * params(String, String)
 	 */
-    create: function(params){
-		console.log(params);
-		let name = params.name;
-		let description = params.description;
-		let userId = params.userId;
-		return new Promise((resolve, reject) => {
-			//create new assignment
-			var newassignment = new Assignment({ 
-						name: params.name,
-                        description: params.description,
-						adminId: params.adminId,
-						userId: params.userId
-			});
-			//save assignment
-			newassignment.save({}, (err, assignment) => {
-				if(err){
-					return reject(err);
-				}
-				return resolve(assignment);
-			});
-		});	
+    create: function(name, description, adminId, userId){
+		var newassignment = new Assignment({ 
+			name: name,
+			description: description,
+			adminId: adminId,
+			userId: userId,
+			done: false
+		});
+		console.log("assig", newassignment);
+		console.log("getting saved...");
+		return newassignment.save();
     },
 	/**
 	 * READ
 	 */
 	all : function (){
-		return new Promise((resolve, reject) => {
-			Assignment.find((err, assignment) => {
-				if(err){
-					return reject(err);
-				}
-				return resolve(assignment);
-			});
-    	});		
+		return Assignment.find();	
 	},
 	//all
-	allAdmin : function (params){
-		return new Promise((resolve, reject) => {
-			let adminId = params.adminId;
-			// let userId = params.userId;
-			Assignment.find({adminId: adminId}, //userId: userId
-			(err, assignment) => {
-				if(err){
-					return reject(err);
-				}
-				return resolve(assignment);
-			});
-    	});		
+	allAdmin : function (adminId){
+		return Assignment.find({adminId: adminId});		
 	},
 	//One by Id
 	findOneById : function (id){
-		return new Promise((resolve, reject) => {
-			Assignment.findById(id, (err, assignment) => {
-				if(err){
-					return reject(err);
-				}
-				console.log(assignment);
-
-				return resolve(assignment);
-			});
-    	});		
+		return Assignment.findById(id);	
 	},
 	//One by Id
 	findAllUserTasks : function (userId){
-		return new Promise((resolve, reject) => {
-			assignment.find({'userId': userId},
-			(err, assignments) => {
-				if(err){
-					return reject(err);
-				}
-				return resolve(assignments);
-			});
-    	});		
+		return assignment.find({'userId': userId});	
 	},
 	/**
      * UPDATE
      */
-    update: function(id, params){
-        // let name = params.name;
-        // let description = params.description;
+    update: function(id, name, descriptions){
 		console.log(params);
 		params = params[0]
         return new Promise((resolve, reject) => {	

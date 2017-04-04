@@ -5,7 +5,8 @@ var assignmentSchema = mongoose.Schema({
     name: { type: String, required: true },
     description: {type:String, required: false},
     adminId: {type: String, required: true},
-    userId: { type:String, required: false}
+    done: {type: Boolean, required: true},
+    userId: { type:String, required: true}
 });
 
 // create the model and expose it to our app

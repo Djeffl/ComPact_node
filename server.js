@@ -10,6 +10,7 @@ mongoose.Promise = require("bluebird"); // NOTE: bluebird's promise performance 
 let morgan = require('morgan');
 let bodyParser = require('body-parser');
 let configDB = require('./config/config');
+let oauthserver = require('oauth2-server');
 require("ejs");
 //Require ROUTES
 let api = require("./app/models/routes/api");
@@ -21,6 +22,19 @@ app.use(express.static('public'));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }) );
+
+// app.oauth = oauthserver({
+//   model: {}, // See below for specification 
+//   grants: ['password'],
+//   debug: true
+// });
+ 
+// app.all('/oauth/token', app.oauth.grant());
+// app.get('/', app.oauth.authorise(), function (req, res) {
+//   res.send('Secret area');
+// });
+// app.use(app.oauth.errorHandler());
+
 app.use(session({ 
     name: "Cookie_compact",
     secret: 'nosecretguys',

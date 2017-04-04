@@ -1,24 +1,22 @@
 var mongoose = require('mongoose'); //db connection
 var bcrypt = require('bcrypt-nodejs');
 var uniqueValidator = require('mongoose-unique-validator');
+let uuid = require('node-uuid');
+
 // Define schema of user
 const SALT_FACTOR = 5;
 var userSchema = mongoose.Schema({
-    name: {
-        first: {type:String, required: true},
-        last: {type:String, required: true}
-    },
+    firstName: {type:String, required: true},
+    lastName: {type:String, required: true},
     email: { type: String, required: true, index: { unique: true }},
-    // password: { type: String, required: true, select: false },
-    password: { type: String, required: true },
+    password: { type: String, required: true, select: false },
     admin: {type: Boolean, required: true},
     token: {
       body: {type:String, required: false},
       endDate: {type:Date, required: false}
     },
-    loginToken: {type:String, required: false},
-    adminId: {type:String, required: false},
-    usersid: {type: Array, required: false}
+    membersIds: {type: Array, required: false},
+    refreshToken: {type: String, required: false}
     // firstLogin: Boolean,
 });
 

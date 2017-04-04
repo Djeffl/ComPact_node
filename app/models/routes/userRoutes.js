@@ -4,20 +4,22 @@ let mongoose = require("mongoose");
 mongoose.Promise = require("bluebird"); // NOTE: bluebird's promise performance *4
 let User   = require('../user'); // get our mongoose model
 let userModule = require('../ObjectMethods/userMethods');
+let authModule = require('../ObjectMethods/authMethods');
+
 let bcrypt = require('bcrypt-nodejs');
 let async = require('async');
 let crypto = require('crypto');
 // =====================================
 // All =================================
 // =====================================
-router.get('/', function(req, res) {
-    //Get all users from userMethods
-    userModule.userMethods.all().then(users => {
-        res.send(users);
-    }, error => {
-        console.log(error);
-    });
-});
+// router.get('/', function(req, res) {
+//     //Get all users from userMethods
+//     userModule.userMethods.all().then(users => {
+//         res.send(users);
+//     }, error => {
+//         console.log(error);
+//     });
+// });
 // =====================================
 // New =================================
 // =====================================
@@ -37,7 +39,7 @@ router.route('/create')
         // let admin =  req.body.admin;
         let user = req.body;
         
-        userModule.userMethods.create(user).then( (user) => {
+        userModule.userMethods.create(user).then((user) => {
             console.log("solved");
             res.status(200).send({
                 user: user
@@ -47,15 +49,71 @@ router.route('/create')
             res.status(400).send(error);
         });
     });
-router.get('/user?email=:email&password=:password', (req, res) => {
-    //Get all users from assignmentMethods
-    let id = req.params.id;
-    assignmentModule.assignmentMethods.findOneById(id).then(assignment => {
-        res.status(200).send(assignment);
-    }, error => {
-        console.log(error);
-        res.status(401).send(error);
-    });
+    router.route('/addmember')
+        .post((req,res) => {
+            let firstName = req.body.firstName;
+            console.log('req', req.body);
+            let lastName = req.body.lastName;
+            let email = req.body.email;
+            let password = req.body.password;
+            let loginToken = req.body.loginToken;
+            authModule.authMethods.loginTokenToId(loginToken).then(adminId => {
+                console.log("adminId", adminId);
+                userModule.userMethods.addMember(adminId, firstName, lastName, email, password).then(user => {
+                res.send(user);
+                }, err => {
+                    console.log(err);
+                    res.status(401).send(err);
+                });
+            },err => {
+                res.status(401).send(err);
+            });
+            
+
+            
+        });
+
+    router.get('/', (req, res) => {
+    if(!(Object.keys(req.query).length === 0)){
+        const id = req.query.id;
+        const email = req.query.email;
+        if(id){
+            userModule.userMethods.findOneById(id).then(user => {
+                userModule.userMethods.AllMembers(user.id).then(members => {
+                    user = user.toJSON();
+                    user.members = members;
+                    res.status(200).send(user);
+                }, err => {
+                    res.send(err);
+                });
+            }, error => {
+                console.log(error);
+                res.status(401).send(error);
+            });
+        }
+        else if(email){
+            userModule.userMethods.findOne(email).then(user => {
+                userModule.userMethods.AllMembers(user.id).then(members => {
+                    user.membersIds = null;
+                    user = user.toJSON();
+                    user.members = members;
+                    res.status(200).send(user);
+                }, err => {
+                    res.send(err);
+                });
+            },error => {
+                res.status(401).send(error);
+            }); 
+        }
+    }    
+    else{
+        userModule.userMethods.all().then(users => {
+            res.send(users);
+            }, error => {
+                console.log(error);
+                res.status(401).send(error);
+        });
+    }
 });
 // =====================================
 // Resetpw===============================
@@ -89,17 +147,16 @@ router.route('/forgot')
 // Login===============================
 // =====================================
 router.post("/authenticate", function(req, res){
-    userModule.userMethods.authenticate(req.body).then((token) => {
-        res.send(token);
+    userModule.userMethods.authenticate(req.body.email, req.body.password).then((user) => {
+        res.send(user);
     },error => {
+        console.log("err");
         res.send(error);
     });
 });
 router.post("/login", function(req,res){
-    console.log(req);
-    console.log(req.body);
-
-    let user = userModule.userMethods.verifyToken(req.body);
+    const loginToken = req.body.loginToken;
+    let user = userModule.userMethods.verifyToken(loginToken);
     if(user){
         res.send(user);
     }else {
