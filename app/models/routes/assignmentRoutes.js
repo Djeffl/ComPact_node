@@ -1,10 +1,12 @@
-"use Strict";
-
-var express = require('express');
-var router = express.Router();
-var assignmentModule = require('../ObjectMethods/assignmentMethods');
-var mongoose = require('mongoose');
-var async = require('async');
+let express = require('express');
+let router = express.Router();
+let assignmentModule = require('../ObjectMethods/assignmentMethods');
+var authModule = require("../ObjectMethods/authMethods");
+var userModule = require("../ObjectMethods/userMethods");
+let mongoose = require('mongoose');
+let async = require('async');
+let token = require('../lib/token');
+let Assignment = require('../assignment');
 
 
 // =====================================
@@ -18,56 +20,127 @@ router.route('/create')
     })
     // Create user
     .post((req,res) => {
-        console.log(req.body);
-        let id = req.body.id;
-        let name = req.body.name;
-        let description = req.body.description;
-        
-        assignmentModule.assignmentMethods.create({'name': name, 'description': description}).then(assignment => {
-            console.log("solved");
-            res.status(200).send({
-                'assignment': assignment
+        console.log("req", req.body);
+        const token = req.body.loginToken || null;
+        const adminId = null;
+        const email = req.body.memberEmail || null;
+        const name = req.body.itemName || null;
+        const description = req.body.description || null;
+        console.log("start");
+        authModule.authMethods.loginTokenToUser(token)
+        .then(user => {
+            userModule.userMethods.findOne(email).then(member => {
+                if(member == null){
+                    res.status(401).send("Create assignmentsroutes");
+                }
+                console.log("member", member);
+                assignmentModule.assignmentMethods.create(name, description, user.id, member.id)
+                .then(assignment => {
+                    console.log("ok klaar");
+                    res.status(201).send({
+                        'assignment': assignment
+                    });
+                })
+                .catch(error => {
+                        res.status(401).send(error);
+                });
+            })
+            .catch(error => {
+                res.status(401).send(error);
             });
-        }, error => {
-            console.log("error");
+        })
+        .catch(error => {
             res.status(401).send(error);
         });
     });
+// function create(name, description, adminId, userId){
+//     assignmentModule.assignmentMethods.create(name, description, adminId, userId)
+//         .then(assignment => {
+//             console.log("solved");
+//             res.status(201).send({
+//                 'assignment': assignment
+//             });
+//         }, error => {
+//             console.log("error");
+//             console.log(error);
+//             res.status(401).send(error);
+//         });
 // =====================================
 // Read=================================
 // =====================================
 //All
 router.get('/', (req, res) => {
-    //Get function from methods
-    assignmentModule.assignmentMethods.all().then(assignments => {
-        res.send(assignments);
-    }, error => {
-        console.log(error);
-        res.status(401).send(error);
-    });
-});
-//OneById
-router.get('/:id', (req, res) => {
-    //Get all users from assignmentMethods
-    let id = req.params.id;
-    assignmentModule.assignmentMethods.findOneById(id).then(assignment => {
-        res.status(200).send(assignment);
-    }, error => {
-        console.log(error);
-        res.status(401).send(error);
-    });
+    if(!(Object.keys(req.query).length === 0)){
+        const adminId = req.query.adminId;
+        const loginToken = req.query.loginToken;
+        const userId = req.query.userId;
+        const id = req.query.id;
+
+
+        if(id){
+            assignmentModule.assignmentMethods.findOneById(id)
+            .then(assignment => {
+                res.status(200).send(assignment);
+            })
+            .catch(error => {
+                
+                console.log(error);
+                res.status(401).send(error);
+            });
+        }
+        else if(adminId){
+            assignmentModule.assignmentMethods.allAdmin(adminId)
+            .then(assignments => {
+                res.status(200).send(assignments);
+            })
+            .catch(error => {
+                res.status(401).send(error);
+            });
+        }
+        else if(loginToken){
+            authModule.authMethods.loginTokenToUser(loginToken)
+            .then(user => {
+                Assignment.find({adminId : user.id})
+                .then(assignment => {
+                    res.send(assignment);
+                })
+                .catch(error => {
+                    res.send(error);
+                });
+            })
+            .catch(error => {
+                res.send(error);
+            });
+        }
+        else if(userId) {
+            res.status(200).send("not yet implemented");
+        }
+        else {
+            res.status(404).send("not yet implemented");
+        }
+    }    
+    else{
+        assignmentModule.assignmentMethods.all()
+        .then(assignments => {
+            res.send(assignments);
+        })
+        .catch(error => {
+            res.status(401).send(error);
+        });
+    }
 });
 // =====================================
 // Update===============================
 // =====================================
-router.post('/update', (req,res) => {
-    let id = req.body.id;
-    let name = req.body.name;
-    let description = req.body.description;
-    assignmentModule.assignmentMethods.update(id, {'name': name, 'description': description}).then(assignment => {
+router.put('/update', (req,res) => {
+    const id = req.body.id;
+    const name = req.body.name;
+    const description = req.body.description;
+    assignmentModule.assignmentMethods.update(id, {'name': name, 'description': description})
+    .then(assignment => {
         res.status(200).send(assignment);
-    }, error => {
-        console.log(error);
+    })
+    .catch(error => {
         res.status(401).send(error);
     });
 });
@@ -75,11 +148,26 @@ router.post('/update', (req,res) => {
 // Delete===============================
 // =====================================
 router.post('/delete', (req,res) => {
-    let id = req.body.id;
-    assignmentModule.assignmentMethods.delete(id).then(response => {
+    const id = req.body.id;
+    assignmentModule.assignmentMethods.delete(id)
+    .then(response => {
         res.status(200).send(response);
 
-    }, error => {
+    })
+    .catch(error => {
+        console.log(error);
+        res.status(401).send(error);
+    });
+});
+
+//REMOVE
+router.post('/deleteall', (req,res) => {
+    assignmentModule.assignmentMethods.deleteAll()
+    .then(response => {
+        res.status(200).send(response);
+
+    })
+    .catch(error => {
         console.log(error);
         res.status(401).send(error);
     });
