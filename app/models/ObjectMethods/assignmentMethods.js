@@ -11,9 +11,11 @@ exports.assignmentMethods = {
 	 * CREATE
 	 * params(String, String)
 	 */
-    create: function(name, description, adminId, userId){
+    create: function(itemName, description, adminId, userId){
+		console.log("okok");
+		console.log(itemName + " " + description + " "+ adminId + " " + userId);
 		var newassignment = new Assignment({ 
-			name: name,
+			itemName: itemName,
 			description: description,
 			adminId: adminId,
 			userId: userId,
@@ -73,5 +75,8 @@ exports.assignmentMethods = {
             };
             return resolve(response);
         });
-    }			
+    },
+	deleteAll: function(){   
+        return Assignment.remove({});
+    }		
  }

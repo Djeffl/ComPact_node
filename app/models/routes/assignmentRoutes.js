@@ -2,6 +2,7 @@ let express = require('express');
 let router = express.Router();
 let assignmentModule = require('../ObjectMethods/assignmentMethods');
 var authModule = require("../ObjectMethods/authMethods");
+var userModule = require("../ObjectMethods/userMethods");
 let mongoose = require('mongoose');
 let async = require('async');
 let token = require('../lib/token');
@@ -19,23 +20,34 @@ router.route('/create')
     })
     // Create user
     .post((req,res) => {
+        console.log("req", req.body);
         const token = req.body.loginToken || null;
         const adminId = null;
-        const userId = req.body.userId || null;
+        const email = req.body.memberEmail || null;
         const name = req.body.itemName || null;
         const description = req.body.description || null;
-
+        console.log("start");
         authModule.authMethods.loginTokenToUser(token)
         .then(user => {
-            assignmentModule.assignmentMethods.create(name, description, user.id, userId)
-            .then(assignment => {
-                res.status(201).send({
-                    'assignment': assignment
+            userModule.userMethods.findOne(email).then(member => {
+                if(member == null){
+                    res.status(401).send("Create assignmentsroutes");
+                }
+                console.log("member", member);
+                assignmentModule.assignmentMethods.create(name, description, user.id, member.id)
+                .then(assignment => {
+                    console.log("ok klaar");
+                    res.status(201).send({
+                        'assignment': assignment
+                    });
+                })
+                .catch(error => {
+                        res.status(401).send(error);
                 });
             })
             .catch(error => {
-                    res.status(401).send(error);
-                });
+                res.status(401).send(error);
+            });
         })
         .catch(error => {
             res.status(401).send(error);
@@ -138,6 +150,19 @@ router.put('/update', (req,res) => {
 router.post('/delete', (req,res) => {
     const id = req.body.id;
     assignmentModule.assignmentMethods.delete(id)
+    .then(response => {
+        res.status(200).send(response);
+
+    })
+    .catch(error => {
+        console.log(error);
+        res.status(401).send(error);
+    });
+});
+
+//REMOVE
+router.post('/deleteall', (req,res) => {
+    assignmentModule.assignmentMethods.deleteAll()
     .then(response => {
         res.status(200).send(response);
 

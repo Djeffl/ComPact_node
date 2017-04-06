@@ -45,7 +45,6 @@ exports.authMethods = {
 							// let html = ejs.render(data, { token });
 							let transporter = mailConfig.transporter();
 							let options = mailConfig.mailOptions(user.email,'Reset password', null, html);
-							console.log("okokokoko");
 							mail.sendMail(transporter, options).then( () => {
 								console.log("okokokoko");
 								return resolve(token);
@@ -83,22 +82,26 @@ exports.authMethods = {
 		return new Promise((resolve, reject) => {
 			User.findOne({
 				email: email
-			}, 'id firstName lastName refreshToken email password', (err, user) => {
+			}, 'id firstName lastName refreshToken email password admin', (err, user) => {
 				if(!user){
 					reject("Incorrect email");
 				}
 				if(err){ return reject(err); }
 				//Compare password				
-				user.validPassword(password).then((userRef) => {
-					token.createLogin(userRef.refreshToken).then((logintoken) => {
-						userModule.userMethods.AllMembers(user.id).then(members => {
+				user.validPassword(password)
+				.then((userRef) => {
+					token.createLogin(userRef.refreshToken)
+					.then((logintoken) => {
+						userModule.userMethods.AllMembers(user.id)
+						.then(members => {
 							const response = {
 								firstName: user.firstName,
 								lastName: user.lastName,
 								email: user.email,
 								refreshToken: user.refreshToken,
 								loginToken: logintoken,
-								members: members
+								members: members,
+								admin: user.admin
 							};
 							console.log("response", response);
 							resolve(response);
@@ -143,6 +146,7 @@ exports.authMethods = {
 					return reject("oops");
 				}
 				User.findById(body.id).then(user => {
+					console.log("user found loginTokenId");
 					return resolve(user);
 				}, err => {
 					return reject(err);

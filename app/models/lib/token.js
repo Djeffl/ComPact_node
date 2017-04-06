@@ -35,12 +35,13 @@ module.exports = {
 				if(err) { return reject(err); }
 				console.log(user);
 				let idUser = user.id;
-				console.log("ijsfioeo", idUser);
+				console.log("token.js createLogin", idUser);
 				jwt.sign({ 'id': idUser, 'type': "login"}, secret, {
 					expiresIn : 60*60*24*7 //7 days
-				}, (err, token) =>{
-					if(err){ return reject(error); }
-						return resolve(token);
+				}, (err, token) =>{					
+					if(err){ console.log(error); return reject(error); }
+					console.log("resolved");
+					return resolve(token);
 				});
 			});
 		});

@@ -125,7 +125,8 @@ exports.userMethods = {
 						});
 				}
 				else {
-					return reject("No members found");
+					console.log("usermethods AllMembers: No members found");
+					return resolve([]);
 				}
 			});
 		});
@@ -138,7 +139,10 @@ exports.userMethods = {
 		return User.find({});		
 	},
 	findOne : function (email){	
-		return User.findOne({"email": email});
+		console.log(email);
+		return User.findOne({email: email});
+		
+		
 	},
 	findOneById: (id) => {
 		return User.findById(id);
