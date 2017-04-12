@@ -47,15 +47,18 @@ userSchema.plugin(uniqueValidator);
 //     return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 // };
 
-//checking if password is valid
+/**
+ * Checking if password is valid
+ */
 userSchema.methods.validPassword = function(password){
   return new Promise((resolve, reject) => {
     bcrypt.compare(password, this.password, (err, match) => {
       if(err){
-        return reject(err);
-      }   
-      console.log("okk");
-      return resolve(match);
+        reject(err);
+      }
+      else{
+        resolve(match);
+      }
   });
 });
 }

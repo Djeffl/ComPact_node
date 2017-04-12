@@ -19,30 +19,33 @@ module.exports = {
 					expiresIn : 100
 					},
 			(err, token) => {
-				if(err){ return reject(err);}
-				return resolve(token);
+				if(err){ reject(err);}
+				resolve(token);
 			});
 		});
 	},
 	createLogin: function(refreshToken){
 		return new Promise((resolve, reject) => {
-			User.findOne({"refreshtoken": refreshToken}, 
+			User.findOne({refreshToken: refreshToken}, 
 			(err, user) => {
+				console.log("user ", user);
 				if(user == null){
-					console.log(refreshToken);
-					return reject("Internal error: Invalid refreshToken");
+					reject("Internal error: Invalid refreshToken");
 				}
-				if(err) { return reject(err); }
-				console.log(user);
-				let idUser = user.id;
-				console.log("token.js createLogin", idUser);
-				jwt.sign({ 'id': idUser, 'type': "login"}, secret, {
-					expiresIn : 60*60*24*7 //7 days
-				}, (err, token) =>{					
-					if(err){ console.log(error); return reject(error); }
-					console.log("resolved");
-					return resolve(token);
-				});
+				else{
+					if(err) { reject(err); }
+					else {
+						let idUser = user.id;
+						console.log("token.js createLogin", idUser);
+						jwt.sign({ 'id': idUser, 'type': "login"}, secret, {
+							expiresIn : 60*60*24*7 //7 days
+						}, (err, token) =>{					
+						if(err){ console.log(error); reject(error); }
+						resolve(token);
+						});
+					}
+				}
+				
 			});
 		});
 	}

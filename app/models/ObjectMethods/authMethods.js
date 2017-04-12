@@ -86,37 +86,75 @@ exports.authMethods = {
 				if(!user){
 					reject("Incorrect email");
 				}
-				if(err){ return reject(err); }
-				//Compare password				
-				user.validPassword(password)
-				.then((userRef) => {
-					token.createLogin(userRef.refreshToken)
-					.then((logintoken) => {
-						userModule.userMethods.AllMembers(user.id)
-						.then(members => {
-							const response = {
-								firstName: user.firstName,
-								lastName: user.lastName,
-								email: user.email,
-								refreshToken: user.refreshToken,
-								loginToken: logintoken,
-								members: members,
-								admin: user.admin
-							};
-							console.log("response", response);
-							resolve(response);
-						})
-						.catch(error =>{
-							reject(error);
-						});
-					},err => {
-					return reject(err);
-					});
-				}, err => {
-					return reject(err);
-				});
+				else{
+					if(err){ return reject(err); }
+					//Compare password
+					console.log(user);	
+					user.validPassword(password)
+					.then((isMatch) => {
+						//Password is valid
+						if(isMatch){
+							//userRef.refreshToken
+							token.createLogin(user.refreshToken)
+							.then((logintoken) => {
+								// userModule.userMethods.AllMembers(user.id)
+								// .then(members => {
+								const response = {
+									_id: user._id,
+									firstName: user.firstName,
+									lastName: user.lastName,
+									email: user.email,
+									refreshToken: user.refreshToken,
+									loginToken: logintoken,
+									//members: members,
+									admin: user.admin
+								};
+								resolve(response);
+								// })
+								// .catch(error =>{
+								// 	reject(error);
+								// });
+							},err => {
+								reject(err);
+							});	
+						}
+						//Password is invalid
+						else{
+							reject("invalid password");
+						}
+					}, err => {
+						reject(err);
+					});	
+				}
+					
 			}, err => {
 				return reject(err);
+			});
+		});
+	},
+	loginRefreshToken: function(refreshToken){
+		return new Promise((resolve, reject) => {
+			User.findOne({refreshToken: refreshToken})
+			.then(user => {
+				token.createLogin(user.refreshToken)
+				.then((loginToken) => {
+					const response = {
+						_id: user.id,
+						firstName: user.firstName,
+						lastName: user.lastName,
+						email: user.email,
+						refreshToken: user.refreshToken,
+						loginToken: loginToken,
+						admin: user.admin
+					};
+					resolve(response);
+				})
+				.catch(err => {
+					reject(err);
+				});
+			})
+			.catch(err => {
+				reject(err);
 			});
 		});
 	},

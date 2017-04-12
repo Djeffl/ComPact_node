@@ -12,9 +12,18 @@ let async = require('async');
 // Resetpw===============================
 // =====================================
 router.get('/', (req,res) => {
-    res.send("ok");
+    const email = req.query.email;
+    if(email){
+        userModule.userMethods.findOne(email)
+        .then(user => {
+            res.send.user(200).send(user);
+        })
+        .catch(err => {
+            res.status(401).send(error);
+        }); 
+    }
 });
-router.route('/create')
+router.route('/register')
     // page
     .get(function(req,res){
         // Todo only for web
@@ -27,16 +36,26 @@ router.route('/create')
         let email = req.body.email;
         let password = req.body.password;
         let admin =  req.body.admin;
-        userModule.userMethods.create(firstName, lastName, email, password, admin).then((user) => {
-            console.log(user);
-            res.status(200).send(user);
-        }, error => {
-            console.log("error");
-            res.status(400).send(error);
+        userModule.userMethods.findOne(email)
+        .then((user)=> {
+            if(user!=null){
+                res.status(409).send("Email already taken");
+            }
+            userModule.userMethods.create(firstName, lastName, email, password, admin)
+            .then((user) => {
+                //TODO check why select= false not working
+                user.password = null;
+                res.send(user);
+            })
+            .catch(err => {
+                res.send(error);
+            });
+        })
+        .catch(err => {
+            res.send(err);
         });
-    },error => {
-        res.send(err);
     });
+    
 
 router.route('/resetpassword')
     // page
@@ -67,13 +86,25 @@ router.route('/forgot')
 // Login===============================
 // =====================================
 router.post("/login", function(req, res){
-    console.log(req.body);
-    authModule.authMethods.login(req.body.email, req.body.password).then((user) => {
-        res.send(user);
-    },error => {
-        console.log("err");
-        res.send(error);
-    });
+    if(req.body.refreshToken != null){
+        console.log("ok");
+        authModule.authMethods.loginRefreshToken(req.body.refreshToken)
+        .then(user => {
+            console.log("user", user);
+            res.send(user);
+        })
+        .catch(err => {
+            res.status(402).send(error);
+        });
+    }
+    else {
+        authModule.authMethods.login(req.body.email, req.body.password).then((user) => {
+            console.log(user);
+            res.send(user);
+        },error => {
+            res.status(409).send(error);
+        });
+    }
 });
 router.post("/auth", function(req,res){
     const loginToken = req.body.loginToken;
@@ -84,6 +115,8 @@ router.post("/auth", function(req,res){
         res.send("Not a valid token!");
     }
 });
+
+
 // // =====================================
 // // Logout===============================
 // // =====================================

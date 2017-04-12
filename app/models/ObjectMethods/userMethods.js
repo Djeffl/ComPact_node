@@ -18,47 +18,45 @@ let token = require("../lib/token");
 exports.userMethods = {
 	/**
 	 * Save user
-	 * params(String, String, String, String, Boolean)
 	 */
-	
     create: function(firstName, lastName, email, password){
 		return new Promise((resolve, reject) => {
-			//create new user
-			token.createRefresh(email).then(refreshToken => {
-				console.log(refreshToken);
+			token.createRefresh(email)
+			.then(refreshToken => {
 				let newUser = new User({ 
-						firstName: firstName,
-						lastName: lastName,
-						email: email,
-						password: password,
-						admin: true,
-						refreshToken: refreshToken
-						// users: Array
-						// firstLogin: Boolean,
+					firstName: firstName,
+					lastName: lastName,
+					email: email,
+					password: password,
+					admin: true,
+					refreshToken: refreshToken
+					// firstLogin: Boolean,
 				});
 				//save user
 				newUser.save({}, (err, user) => {
 					if(err){
-						console.log(err);
-						return reject(err);
+						reject(err);
 					}
-					// return resolve(user);
 					//For mail on create
-					let transporter = mailConfig.transporter();
-					let  html = '<p>Succesfully created an account!<p> </br><p>' + user + '</p>';
-					let options = mailConfig.mailOptions(newUser.email,'Welcome to ComPact!', null, html);
-					mail.sendMail(transporter, options).then((info) => {
-					console.log("Good path");
-					return resolve(user);
-					}, (error) => {
-					console.log("nee");
-					return reject(error);
+					const transporter = mailConfig.transporter();
+					const  html = '<p>Succesfully created an account!<p> </br><p>' + user + '</p>';
+					const options = mailConfig.mailOptions(newUser.email,'Welcome to ComPact!', null, html);
+					mail.sendMail(transporter, options)
+					.then(() => {
+						resolve(user);						
+					})
+					.catch(err => {
+						reject(err);
 					});
-				});
-			}, error => {
-				return reject(error);
+				})
+				.catch(err => {
+					reject(err);
+				})
+			})
+			.catch(err => {
+				reject(err);
 			});	
-		})
+		});
 			
     },
 	addMember: function(adminId, firstName, lastName, email, password){
@@ -116,17 +114,23 @@ exports.userMethods = {
 	AllMembers: (adminId) => {
 		return new Promise((resolve,reject) => {
 			User.findById(adminId, (err, user) => {
+				console.log("usere", user);
 				if(err) { reject(err); }
-				const membersIds = user.membersIds;
-				if(membersIds.length != 0){
-					User.find({ _id: { $in: membersIds }})
-						.then(members => {
-							resolve(members);
-						});
+				if(user == null){
+					reject("invalid data");
 				}
 				else {
-					console.log("usermethods AllMembers: No members found");
-					return resolve([]);
+					const membersIds = user.membersIds;
+					if(membersIds.length != 0){
+						User.find({ _id: { $in: membersIds }})
+							.then(members => {
+								resolve(members);
+							});
+					}
+					else {
+						console.log("usermethods AllMembers: No members found");
+						return resolve([]);
+					}
 				}
 			});
 		});
@@ -139,10 +143,7 @@ exports.userMethods = {
 		return User.find({});		
 	},
 	findOne : function (email){	
-		console.log(email);
 		return User.findOne({email: email});
-		
-		
 	},
 	findOneById: (id) => {
 		return User.findById(id);

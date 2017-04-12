@@ -76,6 +76,7 @@ router.route('/create')
     if(!(Object.keys(req.query).length === 0)){
         const id = req.query.id;
         const email = req.query.email;
+        const adminId = req.query.adminId;
         if(id){
             userModule.userMethods.findOneById(id).then(user => {
                 userModule.userMethods.AllMembers(user.id).then(members => {
@@ -88,6 +89,16 @@ router.route('/create')
             }, error => {
                 console.log(error);
                 res.status(401).send(error);
+            });
+        }
+        else if(adminId){
+            userModule.userMethods.AllMembers(adminId)
+            .then(members => {
+                console.log(members);
+                res.send(members);
+            })
+            .catch(err => {
+                res.send({});
             });
         }
         else if(email){

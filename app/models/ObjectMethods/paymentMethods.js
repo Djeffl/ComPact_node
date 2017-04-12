@@ -1,56 +1,53 @@
-var Assignment   = require('../assignment'); // get mongoose model
-var session = require('express-session')
+var Payment   = require('../payment'); // get mongoose model
 var mongoose = require('mongoose');
 var async = require('async');
 var ejs = require("ejs");
 var path = require("path");
 var fs =require("fs");
 
-exports.assignmentMethods = {
+exports.paymentMethods = {
 	/**
 	 * CREATE
 	 * params(String, String)
 	 */
-    create: function(itemName, description, iconName, adminId, memberId){
-		var newassignment = new Assignment({ 
-			itemName: itemName,
-			description: description,
-			iconName: iconName,
-			adminId: adminId,
-			memberId: memberId,
-			done: false
-		});
-		console.log("assig", newassignment);
+    create: function(name, description, price, adminId, memberId){
+		var newPayment= new Payment({
+            name: name,
+            description: description,
+            price: price,
+            adminId: adminId,
+            memberId: memberId
+        });
 		console.log("getting saved...");
-		return newassignment.save();
+		return newPayment.save();
     },
 	/**
 	 * READ
 	 */
 	all : function (){
-		return Assignment.find();	
+		return Payment.find();	
 	},
 	//all
 	allAdmin : function (adminId){
-		return Assignment.find({adminId: adminId});		
+		return Payment.find({adminId: adminId});		
 	},
 	//One by Id
 	findOneById : function (id){
-		return Assignment.findById(id);	
+		return Payment.findById(id);	
 	},
 	//One by Id
-	findAllUserTasks : function (userId){
-		return Assignment.find({'memberId': userId});	
+	findAllUserPayments : function (userId){
+		return Payment.find({'memberId': userId});	
 	},
 	/**
      * UPDATE
      */
     update: function(id, obj){
         return new Promise((resolve, reject) => {	
-            Assignment.findByIdAndUpdate(id, obj, {new: true},
-			(err, assignment) => {
+            Payment.findByIdAndUpdate(id, obj, {new: true},
+			(err, payment) => {
 					if(err) reject(err);	
-					resolve(assignment);
+					resolve(payment);
 				}, err => {
 				reject(err);
 			});
@@ -60,7 +57,7 @@ exports.assignmentMethods = {
      * DELETE
      */
     delete: function(id){   
-        return Assignment.findByIdAndRemove(id);
+        return Payment.findByIdAndRemove(id);
             
 		//return confirm delete message
             // let response = {
@@ -69,6 +66,6 @@ exports.assignmentMethods = {
             // };
     },
 	deleteAll: function(){   
-        return Assignment.remove({});
+        return Payment.remove({});
     }		
  }
