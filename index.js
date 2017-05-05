@@ -17,13 +17,13 @@ require("ejs");
 let api = require("./app/models/routes/api");
 let index = require("./app/models/routes/indexRoutes");
 // Configuration =================================================================================================================
-mongoose.connect(configDB.urlDatabase) //connect DB
-.then(() => { 
-      console.log("Db connected!"); 
-})
-.catch(err => { 
-      console.log(err);
-});
+// mongoose.connect(configDB.urlDatabase) //connect DB
+// .then(() => { 
+//       console.log("Db connected!"); 
+// })
+// .catch(err => { 
+//       console.log(err);
+// });
 app.use(morgan('dev')); // log every request to the console
 app.use(express.static('public'));
 app.use(cookieParser());
@@ -54,7 +54,7 @@ app.use(session({
 app.use(express.static(__dirname + '/public')); //CSS & JS files front-end
 app.set('view engine', 'ejs');// set the view engine to ejs
 // ROUTES setup ====================================================================================================================
-app.use('/api', api);
+//app.use('/api', api);
 app.use('/', index);
 //launch ===========================================================================================================================
 app.listen(port);
