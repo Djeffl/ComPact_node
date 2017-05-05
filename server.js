@@ -11,7 +11,7 @@ let morgan = require('morgan');
 var multer  = require('multer');
 let bodyParser = require('body-parser');
 let configDB = require('./config/config');
-let oauthserver = require('oauth2-server');
+//let oauthserver = require('oauth2-server');
 require("ejs");
 //Require ROUTES
 let api = require("./app/models/routes/api");
