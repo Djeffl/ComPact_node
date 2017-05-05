@@ -15,5 +15,4 @@ router.use('/assignments', assignmentRoute);
 router.use('/payments', paymentRoute);
 router.use('/locations', locationRoutes); //token.verify,
 
-
 module.exports = router;
