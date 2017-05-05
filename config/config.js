@@ -1,6 +1,6 @@
 module.exports = {
     ///Database
-    'urlDatabase' : 'mongodb://localhost/test',
+    'urlDatabase' : 'mongodb://JeffIsLife:root@ds062919.mlab.com:62919/compactdb',
     ///Secret
     'secret': 'Not a secret',
     ///Google API key
