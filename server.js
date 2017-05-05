@@ -17,7 +17,13 @@ require("ejs");
 let api = require("./app/models/routes/api");
 let index = require("./app/models/routes/indexRoutes");
 // Configuration =================================================================================================================
-mongoose.connect(configDB.urlDatabase); //connect DB
+mongoose.connect(configDB.urlDatabase) //connect DB
+.then(() => { 
+      console.log("Db connected!"); 
+})
+.catch(err => { 
+      console.log(err);
+});
 app.use(morgan('dev')); // log every request to the console
 app.use(express.static('public'));
 app.use(cookieParser());
