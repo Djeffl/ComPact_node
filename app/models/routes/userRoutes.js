@@ -55,22 +55,35 @@ router.route('/create')
             let lastName = req.body.lastName;
             let email = req.body.email;
             let password = req.body.password;
-            let loginToken = req.body.loginToken;
-            authModule.authMethods.loginTokenToId(loginToken).then(adminId => {
-                console.log("adminId", adminId);
-                userModule.userMethods.addMember(adminId, firstName, lastName, email, password).then(user => {
-                res.send(user);
-                }, err => {
+            let adminId = req.body.adminId;
+            // authModule.authMethods.loginTokenToId(loginToken).then(adminId => {
+            //     console.log("adminId", adminId);
+                userModule.userMethods.addMember(adminId, firstName, lastName, email, password)
+                .then(member => {
+                res.send(member);
+            })
+            .catch(err => {
                     console.log(err);
                     res.status(401).send(err);
-                });
-            },err => {
-                res.status(401).send(err);
             });
+            // },err => {
+            //     res.status(401).send(err);
+            // });
             
 
             
         });
+    
+    router.post('/test', (req, res) => {
+        console.log(req.body);
+        userModule.userMethods.FindAdminByMember(req.body.memberId)
+        .then(admin => {
+            res.send(admin);
+        })
+        .catch(err => {
+            res.send(err);
+        });
+    });
 
     router.get('/', (req, res) => {
     if(!(Object.keys(req.query).length === 0)){

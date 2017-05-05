@@ -135,6 +135,9 @@ exports.userMethods = {
 			});
 		});
 	},
+	FindAdminByMember: (memberId) => {
+		return User.findOne({ membersIds: { $in: [memberId] }});
+	},
 	/**
 	 * Get all users of the databank
 	 */

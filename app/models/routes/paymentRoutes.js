@@ -8,33 +8,55 @@ const async = require('async');
 const token = require('../lib/token');
 const Payment = require('../payment');
 
+const path = require('path');
+//const formidable = require('formidable');
+var multer  = require('multer');
+var app = express();
 
 // =====================================
 // Create===============================
 // =====================================
-router.post('/', (req,res) => {
+
+let storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    console.log("ok desti");
+    cb(null, './public/uploads/payments')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  }
+});
+
+let upload = multer({storage: storage});
+
+router.post('/', upload.single("attachment"), (req,res, next) => {      
         console.log("Payment create");
         console.log("request body");
         console.log(req.body);
+        console.log("req file");
+        console.log(req.file);
 
         const name = req.body.name || null;
         const description = req.body.description || null;
         const price = req.body.price || null;
         const adminId = req.body.adminId || null;
         const memberId = req.body.memberId || null;
-        /**
-         * Params = name, description, price, adminId, memberId
-         */
-        paymentModule.paymentMethods.create(name, description, price, adminId, memberId)
-        .then(payment => {
-            console.log("Successfully created:")
-            console.log(payment);
-            res.status(201).send(payment);
-        })
-        .catch(err => {
-            res.send(err);
-        });
+        const createdAt = req.body.createdAt || null;
+        const path = req.file.filename || null;
+    /**
+     * Params = name, description, price, adminId, memberId
+     */
+    paymentModule.paymentMethods.create(name, description, price, adminId, memberId, createdAt, path)
+    .then(payment => {
+        console.log("Successfully created:");
+        console.log(payment);
+        res.status(201).send(payment);
+    })
+    .catch(err => {
+        console.log(err);
+        res.send(err);
     });
+});
 // =====================================
 // Read=================================
 // =====================================
@@ -61,8 +83,9 @@ router.get('/', (req, res) => {
         //If adminId get all payments of the admin
         else if(adminId){
             paymentModule.paymentMethods.allAdmin(adminId)
-            .then(assignments => {
-                res.status(200).send(assignments);
+            .then(payments => {
+                console.log(payments);
+                res.status(200).send(payments);
             })
             .catch(error => {
                 res.status(401).send(error);
@@ -86,8 +109,9 @@ router.get('/', (req, res) => {
         }
         //If userId get all payments of user
         else if(userId) {
-            paymentModule.paymentMethods.findAllUserTasks(userId)
+            paymentModule.paymentMethods.findAllUserPayments(userId)
             .then(assignments => {
+                console.log(assignments);
                 res.status(200).send(assignments);
             })
             .catch(err => {
@@ -115,13 +139,15 @@ router.get('/', (req, res) => {
 // =====================================
 router.put('/:id', (req,res) => {
     const id = req.params.id;
-    const obj = req.body;
+    let obj = req.body;
+    obj.id = null;
     //Remove all null values
     Object.keys(obj).forEach(k => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
     console.log("obj ", obj);
-    assignmentModule.assignmentMethods.update(id, obj)
-    .then(assignment => {
-        res.status(200).send(assignment);
+    paymentModule.paymentMethods.update(id, obj)
+    .then(payment => {
+        console.log("updated: " + payment);
+        res.status(200).send(payment);
     })
     .catch(error => {
         res.status(401).send(error);
@@ -132,7 +158,7 @@ router.put('/:id', (req,res) => {
 // =====================================
 router.delete('/:id', (req,res) => {
     const id = req.params.id;
-    assignmentModule.assignmentMethods.delete(id)
+    paymentModule.paymentMethods.delete(id)
     .then(response => {
         const data = {
             "success": true
@@ -148,7 +174,7 @@ router.delete('/:id', (req,res) => {
 
 //REMOVE
 router.post('/deleteall', (req,res) => {
-    assignmentModule.assignmentMethods.deleteAll()
+    paymentModule.paymentMethods.deleteAll()
     .then(response => {
         res.status(200).send(response);
 

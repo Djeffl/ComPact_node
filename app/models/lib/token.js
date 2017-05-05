@@ -3,13 +3,14 @@ let secret = require('../../../config/config').secret;
 let User   = require('../user');
 module.exports = {
 	verify: function(req, res, next){
-		const token = req.query.token;
-		console.log(tokenn);
+		const token = req.body.loginToken;
+		console.log(token);
 		jwt.verify(token, secret, (err, tokenBody) => {
 			if(err){
 				res.send("Invalid");
 			}
-			req.tokenBody = tokenBody;
+			req.userId = tokenBody.id;
+			console.log("user", req.userId);
 			next();
 		});
 	},

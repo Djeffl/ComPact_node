@@ -5,7 +5,11 @@ var paymentSchema= mongoose.Schema({
     description: {type:String, required: false},
     price: {type:Number, required: true},
     adminId: {type: String, required: false},
-    memberId: { type:String, required: false}
+    memberId: { type:String, required: false},
+    createdAt: {type:Date, required: false},
+    image: {
+        path: {type:String, required: false}
+    }
 });
 
 // create the model and expose it to our app

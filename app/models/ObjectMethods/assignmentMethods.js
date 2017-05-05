@@ -20,7 +20,6 @@ exports.assignmentMethods = {
 			memberId: memberId,
 			done: false
 		});
-		console.log("assig", newassignment);
 		console.log("getting saved...");
 		return newassignment.save();
     },
@@ -32,7 +31,20 @@ exports.assignmentMethods = {
 	},
 	//all
 	allAdmin : function (adminId){
-		return Assignment.find({adminId: adminId});		
+		return new Promise((resolve,reject)=> {
+			Assignment.find({adminId: adminId}).then(assignments => {
+				if(assignments.length != 0){
+					resolve(assignments);
+				}
+				else{
+					resolve([]);
+				}
+			})
+			.catch(err => {
+				reject(err);
+			});
+			
+		});
 	},
 	//One by Id
 	findOneById : function (id){

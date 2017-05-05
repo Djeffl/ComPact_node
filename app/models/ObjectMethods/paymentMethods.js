@@ -4,22 +4,59 @@ var async = require('async');
 var ejs = require("ejs");
 var path = require("path");
 var fs =require("fs");
+var userModule = require("../ObjectMethods/userMethods");
 
 exports.paymentMethods = {
 	/**
 	 * CREATE
 	 * params(String, String)
 	 */
-    create: function(name, description, price, adminId, memberId){
-		var newPayment= new Payment({
-            name: name,
-            description: description,
-            price: price,
-            adminId: adminId,
-            memberId: memberId
-        });
-		console.log("getting saved...");
-		return newPayment.save();
+    create: function(name, description, price, adminId, memberId, createdAt, path){
+		return new Promise((resolve, reject) => {
+			if(adminId == null){
+				userModule.userMethods.findOneById(memberId)
+				.then(user => {
+					console.log(adminId);
+					adminId = user.adminId;
+					console.log(user);
+					console.log(adminId);
+
+					var newPayment = new Payment({
+						name: name,
+						description: description,
+						price: price,
+						adminId: adminId,
+						memberId: memberId,
+						createdAt: createdAt,
+						image: {
+							path: path
+						}
+					});
+					console.log()
+					console.log("getting saved...");
+					resolve(newPayment.save());
+				})
+				.catch(err => {
+					reject(err);
+				});	
+			}
+			else {
+				var newPayment= new Payment({
+					name: name,
+					description: description,
+					price: price,
+					adminId: adminId,
+					memberId: memberId,
+					createdAt: createdAt,
+					image: {
+						path: path
+					}
+				});
+				console.log(path);
+				console.log("getting saved...");
+				resolve(newPayment.save());
+			}
+		});
     },
 	/**
 	 * READ
@@ -29,7 +66,8 @@ exports.paymentMethods = {
 	},
 	//all
 	allAdmin : function (adminId){
-		return Payment.find({adminId: adminId});		
+		
+		return Payment.find();	
 	},
 	//One by Id
 	findOneById : function (id){

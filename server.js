@@ -8,6 +8,7 @@ let mongoose = require("mongoose");
 mongoose.Promise = require("bluebird"); // NOTE: bluebird's promise performance * 4
 //Configuration server requirements
 let morgan = require('morgan');
+var multer  = require('multer');
 let bodyParser = require('body-parser');
 let configDB = require('./config/config');
 let oauthserver = require('oauth2-server');
