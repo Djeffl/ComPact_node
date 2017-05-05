@@ -1,9 +1,6 @@
-"use Strict";
-
 var Assignment   = require('../assignment'); // get mongoose model
 var session = require('express-session')
 var mongoose = require('mongoose');
-var LocalStrategy = require('passport-local').Strategy;
 var async = require('async');
 var ejs = require("ejs");
 var path = require("path");
@@ -14,73 +11,56 @@ exports.assignmentMethods = {
 	 * CREATE
 	 * params(String, String)
 	 */
-    create: function(...params){
-		let name = params.name;
-		let description = params.description
-		return new Promise((resolve, reject) => {
-			//create new assignment
-			var newassignment = new Assignment({ 
-						'name': params.name,
-                        'description': params.description
-			});
-			//save assignment
-			newassignment.save({}, (err, assignment) => {
-				if(err){
-					return reject(err);
-				}
-				return resolve(assignment);
-			});
-		});	
+    create: function(itemName, description, iconName, adminId, memberId){
+		var newassignment = new Assignment({ 
+			itemName: itemName,
+			description: description,
+			iconName: iconName,
+			adminId: adminId,
+			memberId: memberId,
+			done: false
+		});
+		console.log("getting saved...");
+		return newassignment.save();
     },
 	/**
 	 * READ
 	 */
-	//all
 	all : function (){
-		return new Promise((resolve, reject) => {
-			Assignment.find((err, assignment) => {
-				if(err){
-					return reject(err);
+		return Assignment.find();	
+	},
+	//all
+	allAdmin : function (adminId){
+		return new Promise((resolve,reject)=> {
+			Assignment.find({adminId: adminId}).then(assignments => {
+				if(assignments.length != 0){
+					resolve(assignments);
 				}
-				return resolve(assignment);
+				else{
+					resolve([]);
+				}
+			})
+			.catch(err => {
+				reject(err);
 			});
-    	});		
+			
+		});
 	},
 	//One by Id
 	findOneById : function (id){
-		return new Promise((resolve, reject) => {
-			assignment.findById(id, (err, assignment) => {
-				if(err){
-					return reject(err);
-				}
-				return resolve(assignment);
-			});
-    	});		
+		return Assignment.findById(id);	
 	},
-	//One by params
-	// findOne : function(...params){
-	// 	return new Promise((resolve, reject) => {
-	// 		assignment.findOne({
-	// 			//params	
-	// 		}, (err, assignment) => {
-	// 			if(err){
-	// 				return reject(err);
-	// 			}
-	// 			return resolve(assignment);
-	// 		});
-    // 	});	
-	// },
+	//One by Id
+	findAllUserTasks : function (userId){
+		return Assignment.find({'memberId': userId});	
+	},
 	/**
      * UPDATE
      */
-    update: function(id, ...params){
-        // let name = params.name;
-        // let description = params.description;
-		console.log(params);
+    update: function(id, obj){
         return new Promise((resolve, reject) => {	
-            Assignment.update(
-				{'id': id},
-				{'name': name, 'description': description}, (err, assignment) => {
+            Assignment.findByIdAndUpdate(id, obj, {new: true},
+			(err, assignment) => {
 					if(err) reject(err);	
 					resolve(assignment);
 				}, err => {
@@ -92,16 +72,15 @@ exports.assignmentMethods = {
      * DELETE
      */
     delete: function(id){   
-        assignment.findByIdAndRemove( id, (err, assignment) => {
-            if(err){
-                return reject(err);
-            }
-            //return confirm delete message
-            let response = {
-                message: "Todo successfully deleted",
-                id: assignment._id
-            };
-            return resolve(response);
-        });
-    }			
+        return Assignment.findByIdAndRemove(id);
+            
+		//return confirm delete message
+            // let response = {
+            //     message: "Todo successfully deleted",
+            //     id: assignment._id
+            // };
+    },
+	deleteAll: function(){   
+        return Assignment.remove({});
+    }		
  }

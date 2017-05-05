@@ -1,71 +1,31 @@
+const locationModule = require('../ObjectMethods/locationMethods');
+const userModule = require('../ObjectMethods/userMethods');
 let express = require('express');
 let router = express.Router();
-let assignmentModule = require('../ObjectMethods/assignmentMethods');
-var authModule = require("../ObjectMethods/authMethods");
-var userModule = require("../ObjectMethods/userMethods");
-let mongoose = require('mongoose');
-let async = require('async');
-let token = require('../lib/token');
-let Assignment = require('../assignment');
-
+const config = require('../../../config/config');
+const jsonRequest = require('../lib/jsonRequest');
 
 // =====================================
 // Create===============================
 // =====================================
-router.route('/create')
-    // page
-    .get((req,res) =>{
-        // Todo only for web
-        res.status(200).send('Create test');
-    })
-    // Create user
+router.route('/')
     .post((req,res) => {
         console.log("Assignments create");
         console.log("req", req.body);
-        const token = req.body.loginToken || null;
-        const adminId = req.body.adminId || null;
-        const memberId = req.body.memberId || null;
-        const itemName = req.body.itemName || null;
-        const description = req.body.description || null;
-        const iconName = req.body.iconName || null;
-        // authModule.authMethods.loginTokenToUser(token)
-        // .then(user => {
-        //     userModule.userMethods.findOne(email).then(member => {
-        //         if(member == null){
-        //             res.status(401).send("Create assignmentsroutes");
-        //         }
-                //console.log("member", member);
-                assignmentModule.assignmentMethods.create(itemName, description, iconName, adminId, memberId)
-                .then(assignment => {
-                    //{
-                    //    'assignment': assignment
-                    //}
-                    res.status(201).send(assignment);
-                })
-                .catch(error => {
-                        res.status(401).send(error);
-                });
-            // })
-        //     .catch(error => {
-        //         res.status(401).send(error);
-        //     });
-        // })
-        // .catch(error => {
-        //     res.status(401).send(error);
-        // });
+        const adminId = req.body.adminId;
+        const name = req.body.name;
+        const city = req.body.city;
+        const streetAndNumber = req.body.streetAndNumber;
+        const radius = req.body.radius;
+        const membersIds = req.body.membersIds;
+        locationModule.locationMethods.create(adminId, name, city, streetAndNumber, radius, membersIds)
+        .then(location => {
+            res.status(201).send(location);
+        })
+        .catch(err => {
+            res.status(401).send(err);
+        });
     });
-// function create(name, description, adminId, userId){
-//     assignmentModule.assignmentMethods.create(name, description, adminId, userId)
-//         .then(assignment => {
-//             console.log("solved");
-//             res.status(201).send({
-//                 'assignment': assignment
-//             });
-//         }, error => {
-//             console.log("error");
-//             console.log(error);
-//             res.status(401).send(error);
-//         });
 // =====================================
 // Read=================================
 // =====================================
@@ -90,9 +50,9 @@ router.get('/', (req, res) => {
             });
         }
         else if(adminId){
-            assignmentModule.assignmentMethods.allAdmin(adminId)
-            .then(assignments => {
-                res.status(200).send(assignments);
+            locationModule.locationMethods.allAdmin(adminId)
+            .then(locations => {
+                res.status(200).send(locations);
             })
             .catch(error => {
                 res.status(401).send(error);
@@ -127,9 +87,9 @@ router.get('/', (req, res) => {
         }
     }    
     else{
-        assignmentModule.assignmentMethods.all()
-        .then(assignments => {
-            res.send(assignments);
+        locationModule.locationMethods.all()
+        .then(locations => {
+            res.send(locations);
         })
         .catch(error => {
             res.status(401).send(error);
@@ -145,9 +105,9 @@ router.put('/:id', (req,res) => {
     //Remove all null values
     Object.keys(obj).forEach(k => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
     console.log("obj ", obj);
-    assignmentModule.assignmentMethods.update(id, obj)
-    .then(assignment => {
-        res.status(200).send(assignment);
+    locationModule.locationMethods.update(id, obj)
+    .then(location => {
+        res.status(200).send(location);
     })
     .catch(error => {
         res.status(401).send(error);
@@ -158,7 +118,7 @@ router.put('/:id', (req,res) => {
 // =====================================
 router.delete('/:id', (req,res) => {
     const id = req.params.id;
-    assignmentModule.assignmentMethods.delete(id)
+    locationModule.locationMethods.delete(id)
     .then(response => {
         const data = {
             "success": true
@@ -174,7 +134,7 @@ router.delete('/:id', (req,res) => {
 
 //REMOVE
 router.post('/deleteall', (req,res) => {
-    assignmentModule.assignmentMethods.deleteAll()
+    locationModule.locationMethods.deleteAll()
     .then(response => {
         res.status(200).send(response);
 
@@ -183,6 +143,51 @@ router.post('/deleteall', (req,res) => {
         console.log(error);
         res.status(401).send(error);
     });
+});
+
+router.post("/current", (req, res) => {
+    const latitude = req.body.latitude;
+    const longitude = req.body.longitude;
+    const memberId = req.userId;
+    console.log(memberId);
+    userModule.userMethods.FindAdminByMember(memberId)
+    .then(admin => {
+        console.log(admin);
+        console.log("admin found!");
+        console.log("okey");
+        let options = {
+            host: 'maps.googleapis.com',
+            port: 443,
+            path: '/maps/api/geocode/json?latlng=' + latitude + ',' + longitude + '&key=' + config.googleApiKey,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+
+        jsonRequest.getJSON(options,(statusCode, result) => {
+            let locationData = result.results[0].formatted_address.split(',');
+            let street = locationData[0];
+            let city = locationData[1];
+            //let city = locationData[2];
+
+            console.log(admin);
+            console.log(admin.id);
+            locationModule.locationMethods.create(admin.id, "I Am Here", city, street, null, memberId, latitude, longitude)
+            .then( response => {
+                res.send(response);
+            })
+            .catch((err) => {
+                res.status(401).send(err);
+            });
+            
+        });
+        
+    })
+    .catch((err) => {
+        res.send(err);
+    });
+
 });
 
 module.exports = router;
