@@ -145,11 +145,24 @@ exports.userMethods = {
 		console.log("all");
 		return User.find({});		
 	},
-	findOne : function (email){	
+	findOne : function (email) {	
 		return User.findOne({email: email});
 	},
 	findOneById: (id) => {
 		return User.findById(id);
+	},
+	update: function(id, obj) {
+		console.log("Update function");
+		return new Promise((resolve,reject) => {			
+			console.log("usueruseuru ", obj);
+            User.findByIdAndUpdate(id, obj, {new: true},
+			(err, user) => {
+					if(err) reject(err);	
+					resolve(user);
+				}, err => {
+				reject(err);
+			});
+        });
 	}
 }
  // TODO: route to authenticate a user (POST http://localhost:8080/api/authenticate)

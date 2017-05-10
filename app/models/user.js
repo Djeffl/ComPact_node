@@ -16,7 +16,8 @@ var userSchema = mongoose.Schema({
       endDate: {type:Date, required: false}
     },
     membersIds: {type: Array, required: false},
-    refreshToken: {type: String, required: false}
+    refreshToken: {type: String, required: false},
+    fireBaseToken: {type: String, required:false}
     // firstLogin: Boolean,
 });
 
