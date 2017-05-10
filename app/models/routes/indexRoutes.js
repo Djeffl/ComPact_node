@@ -84,7 +84,10 @@ router.route('/reset')
         });
         
     });
-    
+router.route('/status')
+    .get((req,res) =>{
+        res.send("Healthy");
+    });
   
 
   

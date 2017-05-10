@@ -100,6 +100,18 @@ router.post("/login", function(req, res){
     else {
         authModule.authMethods.login(req.body.email, req.body.password).then((user) => {
             console.log(user);
+            user.fireBaseToken = req.body.fireBaseToken;
+            console.log("firebaseToken");
+            console.log(user.fireBaseToken);
+            userModule.userMethods.update(user._id, user)
+            .then(updatedUser => {
+                console.log("updatedUser");
+                console.log(updatedUser);
+                res.send(updatedUser);
+            })
+            .catch(err =>{
+                res.send(error);
+            });
             res.send(user);
         },error => {
             res.status(409).send(error);

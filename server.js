@@ -11,13 +11,19 @@ let morgan = require('morgan');
 var multer  = require('multer');
 let bodyParser = require('body-parser');
 let configDB = require('./config/config');
-let oauthserver = require('oauth2-server');
+//let oauthserver = require('oauth2-server');
 require("ejs");
 //Require ROUTES
 let api = require("./app/models/routes/api");
 let index = require("./app/models/routes/indexRoutes");
 // Configuration =================================================================================================================
-mongoose.connect(configDB.urlDatabase); //connect DB
+mongoose.connect(configDB.urlDatabase) //connect DB
+.then(() => { 
+      console.log("Db connected!"); 
+})
+.catch(err => { 
+      console.log(err);
+});
 app.use(morgan('dev')); // log every request to the console
 app.use(express.static('public'));
 app.use(cookieParser());

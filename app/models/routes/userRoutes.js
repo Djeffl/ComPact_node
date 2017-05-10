@@ -193,5 +193,23 @@ router.post("/login", function(req,res){
 //   req.logout();
 //   res.send("u have been logged out");  
 // });
+router.put('/', (req, res) => {
+    const id = req.params.id;
+    let obj = req.body;
+    obj.id = null;
+    //Remove all null values
+    Object.keys(obj).forEach(k => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
+    console.log("obj ", obj);
+
+    userModule.userMethods.update(id, obj)
+    .then(user => {
+        console.log("updated: " + user);
+        res.status(200).send(user);
+    })
+    .catch(error => {
+        res.status(401).send(error);
+    }); 
+});
+
 
 module.exports = router;

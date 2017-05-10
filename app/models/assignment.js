@@ -1,6 +1,6 @@
-var mongoose = require('mongoose'); //db connection
+const mongoose = require('mongoose'); //db connection
 // Define schema
-var assignmentSchema = mongoose.Schema({
+const assignmentSchema = mongoose.Schema({
     //assignmentName: { type: String, required: true, index: { unique: true }},
     itemName: { type: String, required: true },
     description: {type:String, required: false},

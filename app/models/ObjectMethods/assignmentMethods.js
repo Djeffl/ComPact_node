@@ -12,7 +12,7 @@ exports.assignmentMethods = {
 	 * params(String, String)
 	 */
     create: function(itemName, description, iconName, adminId, memberId){
-		var newassignment = new Assignment({ 
+		const newassignment = new Assignment({ 
 			itemName: itemName,
 			description: description,
 			iconName: iconName,
