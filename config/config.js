@@ -6,6 +6,7 @@ module.exports = {
     ///Secret
     secret: 'Not a secret',
     ///Google API key
-    googleApiKey: 'AIzaSyAZBTpmtNvZCamPPe8HsUFm8waQDjTySBw'
+    googleApiKey: 'AIzaSyAZBTpmtNvZCamPPe8HsUFm8waQDjTySBw',
+    fireBaseApiKey: 'AAAAW4SznbU:APA91bE7IG_gvm1HDNsZeNooMoSYxmqGEBg70HjzkhvwlD9IJ8VfsgzY0HwHaWPzLCWMK8OwbvGoW2A0ksOD2NXo4RO-VIzrWh4lVcwKgmSKdiJTfQxDRCrLzIPYcT0ifMqYrsP53Ofy'
 
 };

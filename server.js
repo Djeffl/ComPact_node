@@ -11,11 +11,10 @@ let morgan = require('morgan');
 var multer  = require('multer');
 let bodyParser = require('body-parser');
 let configDB = require('./config/config');
-//let oauthserver = require('oauth2-server');
 require("ejs");
 //Require ROUTES
-let api = require("./app/models/routes/api");
-let index = require("./app/models/routes/indexRoutes");
+let api = require("./app/routes/api");
+//let index = require("./app/models/routes/indexRoutes");
 // Configuration =================================================================================================================
 mongoose.connect(configDB.urlDatabase) //connect DB
 .then(() => { 
@@ -55,7 +54,7 @@ app.use(express.static(__dirname + '/public')); //CSS & JS files front-end
 app.set('view engine', 'ejs');// set the view engine to ejs
 // ROUTES setup ====================================================================================================================
 app.use('/api', api);
-app.use('/', index);
+//app.use('/', index);
 //launch ===========================================================================================================================
 app.listen(port);
 console.log('server running on port: ' + port);
