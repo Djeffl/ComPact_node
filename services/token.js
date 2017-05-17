@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
-const secret = require('../../../config/config').secret;
-const User   = require('../user/index').object;
+const secret = require('../config/constants').secret;
+const User   = require('../objects/user').object;
 
 module.exports = {
     verify,

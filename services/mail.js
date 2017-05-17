@@ -1,19 +1,22 @@
 const nodemailer = require("nodemailer");
+const from = require('../config/constants').nodemailerFrom;
+const service = require('../config/constants').nodemailerService;
+const user = require('../config/constants').nodemailerUser;
+const password = require('../config/constants').nodemailerPassword;
 
 module.exports = {
-    transporter,
     options,
     sendMail
 };
 
 // create reusable transporter object using the default SMTP transport
-function transporter(service, user, pass){
+function transporter(){
     const transporter = 
     nodemailer.createTransport({
         service: service,
         auth: {
         user: user,
-        pass: pass
+        pass: password
         }
     });
 
@@ -21,7 +24,7 @@ function transporter(service, user, pass){
 }
 
 // setup email data with unicode symbols
-function options(from, to, subject, text, html){
+function options(to, subject, text, html){
     options = {
         from: from, //sender address
         to: to, //list of receivers

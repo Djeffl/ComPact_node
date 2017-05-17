@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const request = require('request');
 const device = require('../device');
-var gcm = require('node-gcm');
-const messages = require('../../../config/messages');
+const gcm = require('node-gcm');
+const messages = require('../../config/messages');
 
 
 module.exports = {

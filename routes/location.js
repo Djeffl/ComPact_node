@@ -2,27 +2,34 @@ const locationModule = require('../objects/location');
 const userModule = require('../objects/user');
 let express = require('express');
 let router = express.Router();
-const config = require('../../config/config');
-const jsonRequest = require('../services/jsonRequestService');
+const config = require('../config/constants');
+const jsonRequest = require('../services/jsonRequest');
+
+const notification = require('../services/notification');
+const user = require('../objects/user');
 
 // =====================================
 // Create===============================
 // =====================================
 router.route('/')
     .post((req,res) => {
-        console.log("Assignments create");
+        console.log("location create");
         console.log("req", req.body);
         const adminId = req.body.adminId;
         const name = req.body.name;
         const city = req.body.city;
         const streetAndNumber = req.body.streetAndNumber;
         const radius = req.body.radius;
+        const latitude = req.body.latitude || 0;
+        const longitude = req.body.longitude || 0;
         const membersIds = req.body.membersIds;
-        locationModule.create(adminId, name, city, streetAndNumber, radius, membersIds)
+        const isGeofence = req.body.isGeofence;
+        locationModule.create(adminId, name, city, streetAndNumber, radius, membersIds,latitude, longitude, isGeofence)
         .then(location => {
             res.status(201).send(location);
         })
         .catch(err => {
+            console.log(err);
             res.status(401).send(err);
         });
     });
@@ -35,7 +42,21 @@ router.get('/', (req, res) => {
         const adminId = req.query.adminId;
         const loginToken = req.query.loginToken;
         const userId = req.query.memberId;
+        const isGeofence = req.query.isGeofence;
+
         const id = req.query.id;
+
+        // if(isGeofence != null) {
+
+        //     locationModule.object.find({userId: userId, isGeofence: isGeofence})
+        //     .then( locations => {
+        //         res.send(locations);
+        //     })
+        //     .catch(err => {
+        //         res.send(err);
+        //     });
+        // }
+        
 
         if(id) {
             locationModule.object.findOneById(id)
@@ -74,7 +95,7 @@ router.get('/', (req, res) => {
             });
         }
         else if(userId) {
-            assignmentModule.assignmentMethods.findAllUserTasks(userId)
+            locationModule.readByUserId(userId)
             .then(assignments => {
                 res.status(200).send(assignments);
             })
@@ -87,7 +108,7 @@ router.get('/', (req, res) => {
         }
     }    
     else{
-        locationModule.locationMethods.all()
+        locationModule.readAll()
         .then(locations => {
             res.send(locations);
         })
@@ -146,14 +167,52 @@ router.post('/deleteall', (req,res) => {
 });
 
 router.post("/current", (req, res) => {
-    const latitude = "51.148759";//req.body.latitude;
-    const longitude = "4.435356";//req.body.longitude;
+    const latitude = req.body.latitude;
+    const longitude = req.body.longitude;
     console.log(req.body);
     console.log(latitude + " " + longitude);
     const memberId = "58f8688afa3bfe02e185b68c";//req.userId;
+    locationModule.currentLocation(memberId, latitude, longitude);
+
 
     console.log(memberId);
 
+});
+
+router.post('/InsideOutsideLocation', (req,res) => {
+    console.log(req.body);
+    const memberId = req.body.membersIds[0];
+    const locationName = req.body.name;
+    const isInsideLocation = req.body.isInLocation;
+    console.log("membmer", memberId);
+
+    user.readById(memberId)
+    .then( member => {
+        var msg;
+        if(isInsideLocation){
+            msg = member.firstName + " " + member.lastName + " left " + locationName;
+        }
+        else {
+           msg = member.firstName + " " + member.lastName + " entered " + locationName;
+        }
+         
+        console.log("msg ", msg);
+        notification.currentLocation(msg, member, ["d-2Gdu1SdI4:APA91bFCRXFisAi3J9fLQIX_BgJe5C_mlhJX3fQMLAG8ILMWJpOF_Kw2lDPw2mlWMfMqfRMRf0XIUcUfNfYz-mJrIchu-GuHAdU42qnh2b9LyDHUwO-fRc8j_540q_0nX_FUeUbTf0TB"],
+        (err,devices) => { 
+            if(err){
+                console.log("error");
+                console.log(err);
+            }
+            console.log("ik zit in de callback");
+        });
+        console.log("memberrrr FULL", member);
+    })
+    .catch((err) => {
+        console.log(err);
+    });
+    res.send(req.body);
+    
+    //notification.currentLocation();
 });
 
 module.exports = router;

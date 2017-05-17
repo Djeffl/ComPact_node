@@ -1,23 +1,18 @@
 let express = require('express');
 let router = express.Router();
 let assignmentModule = require('../objects/assignment');
-var authenticationService = require("../services/authenticationService");
+var authenticationService = require("../services/authentication");
 var userModule = require("../objects/user");
 let mongoose = require('mongoose');
 let async = require('async');
-let token = require('../objects/token');
+let token = require('../services/token');
 let Assignment = assignmentModule.object;
 
 
 // =====================================
 // Create===============================
 // =====================================
-router.route('/create')
-    // page
-    .get((req,res) =>{
-        // Todo only for web
-        res.status(200).send('Create test');
-    })
+router.route('/')
     // Create user
     .post((req,res) => {
         console.log("Assignments create");
@@ -35,7 +30,7 @@ router.route('/create')
         //             res.status(401).send("Create assignmentsroutes");
         //         }
                 //console.log("member", member);
-                assignmentModule.assignmentMethods.create(itemName, description, iconName, adminId, memberId)
+                assignmentModule.create(itemName, description, iconName, adminId, memberId)
                 .then(assignment => {
                     //{
                     //    'assignment': assignment
@@ -79,7 +74,7 @@ router.get('/', (req, res) => {
 
 
         if(id){
-            assignmentModule.assignmentMethods.findOneById(id)
+            assignmentModule.readByUserId(id)
             .then(assignment => {
                 res.status(200).send(assignment);
             })

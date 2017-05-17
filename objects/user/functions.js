@@ -5,11 +5,10 @@ let nodemailer = require('nodemailer');
 let bcrypt = require('bcrypt-nodejs');
 let async = require('async');
 //let jwt = require('../../../services/jwt');
-let mail = require('../mail');
-let mailConfig = require('../../config/mail');
+let mail = require('../../services/mail');
 let ejs = require("ejs");
 let path = require("path");
-let token = require("../token");
+let token = require("../../services/token");
 
 module.exports = {
     create,

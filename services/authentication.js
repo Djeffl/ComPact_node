@@ -1,14 +1,12 @@
-const userModule = require('../objects/user/index');
+const userModule = require('../objects/user');
 const User = userModule.object;
-const tokenModule = require('../objects/token/index');
-const Mail = require('../objects/mail/index').object;
+const tokenModule = require('../services/token');
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt-nodejs');
-const mailConfig = require('../config/mail');
 const ejs = require("ejs");
 const jwt = require('jsonwebtoken');
-const secret = require('../../config/config').secret;
+const secret = require('../config/constants').secret;
 
 
 module.exports = {
@@ -133,7 +131,7 @@ function loginRefreshToken(refreshToken) {
 		return new Promise((resolve, reject) => {
 			User.findOne({refreshToken: refreshToken})
 			.then(user => {
-				token.createLogin(user.refreshToken)
+				tokenModule.createLogin(user.refreshToken)
 				.then((loginToken) => {
 					const response = {
 						_id: user.id,
@@ -154,7 +152,31 @@ function loginRefreshToken(refreshToken) {
 				reject(err);
 			});
 		});
-	}
+
+		/*
+		return User.findOne({refreshToken: refreshToken})
+			.then(user => {
+				if (!user) {
+					return Promise.reject('User not found.');
+				}
+
+				return tokenModule.createLogin(user.refreshToken);
+			})	
+			.then((loginToken) => {
+				const response = {
+					_id: user.id,
+					firstName: user.firstName,
+					lastName: user.lastName,
+					email: user.email,
+					refreshToken: user.refreshToken,
+					loginToken: loginToken,
+					admin: user.admin
+				};
+				
+				return response;
+			});
+			*/
+}
 
 function verifyToken(loginToken) {
 	try {

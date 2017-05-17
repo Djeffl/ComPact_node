@@ -9,8 +9,8 @@ var locationSchema = mongoose.Schema({
     radius: {type:Number, required: false},
     membersIds: {type: Array, required: false},
     latitude: {type:Number, required: false},
-    longitude: {type:Number, required: false}
-    
+    longitude: {type:Number, required: false},
+    isGeofence: {type:Boolean, required: true }    
 });
 //methods ==========================================
 

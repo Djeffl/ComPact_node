@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const paymentModule = require('../objects/payment');
-const authenticationService = require("../services/authenticationService");
+const authenticationService = require("../services/authentication");
 const userModule = require("../objects/user/index");
 const mongoose = require('mongoose');
 const async = require('async');
-const token = require('../objects/token');
+const token = require('../services/token');
 
 const path = require('path');
 //const formidable = require('formidable');

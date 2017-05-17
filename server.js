@@ -10,10 +10,10 @@ mongoose.Promise = require("bluebird"); // NOTE: bluebird's promise performance 
 let morgan = require('morgan');
 var multer  = require('multer');
 let bodyParser = require('body-parser');
-let configDB = require('./config/config');
+let configDB = require('./config/constants');
 require("ejs");
 //Require ROUTES
-let api = require("./app/routes/api");
+let api = require("./routes/api");
 //let index = require("./app/models/routes/indexRoutes");
 // Configuration =================================================================================================================
 mongoose.connect(configDB.urlDatabase) //connect DB

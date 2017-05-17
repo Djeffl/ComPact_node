@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const userModule   = require('../objects/user/index'); // get our mongoose model
-const authenticationService = require('../services/authenticationService');
+const userModule   = require('../objects/user');
+const authenticationService = require('../services/authentication');
 const bcrypt = require('bcrypt-nodejs');
 const async = require('async');
 
@@ -29,6 +29,8 @@ router.route('/register')
     })
     // Create user
     .post(function(req,res){        
+        // let { lastName, firstName, email } = req.body;
+
         let lastName = req.body.lastName;
         let firstName = req.body.firstName;
         let email = req.body.email;
@@ -36,18 +38,20 @@ router.route('/register')
         let admin =  req.body.admin;
         userModule.userMethods.findOne(email)
         .then((user) => {
-            if(user!=null){
-                res.status(409).send("Email already taken");
+            if(user){                
+                return;
             }
-            userModule.create(firstName, lastName, email, password, admin)
-            .then((user) => {
+
+            return userModule.create(firstName, lastName, email, password, admin)
+        })
+        .then((user) => {
+            if (!user) {
+                res.status(409).send("Email already taken");
+            } else {
                 //TODO check why select= false not working
                 user.password = null;
                 res.send(user);
-            })
-            .catch(err => {
-                res.send(error);
-            });
+            }
         })
         .catch(err => {
             res.send(err);
