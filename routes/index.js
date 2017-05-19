@@ -9,7 +9,7 @@ var bcrypt = require('bcrypt-nodejs');
 
 router.route('/reset')
     .get(function(req,res){
-        var token = req.query.token;
+        var { token } = req.query;
         // '\\..\\..\\..\\views\\noreset.ejs'
         User.findOne({
             'token.body': token

@@ -38,11 +38,7 @@ router.route('/create')
     });
     router.route('/addmember')
         .post((req,res) => {
-            let firstName = req.body.firstName;
-            let lastName = req.body.lastName;
-            let email = req.body.email;
-            let password = req.body.password;
-            let adminId = req.body.adminId;
+            let { firstName, lastName, email, password,adminId } = req.body;
             // authModule.authMethods.loginTokenToId(loginToken).then(adminId => {
             //     console.log("adminId", adminId);
                 userModule.addMember(adminId, firstName, lastName, email, password)
@@ -74,9 +70,7 @@ router.route('/create')
 
     router.get('/', (req, res) => {
     if(!(Object.keys(req.query).length === 0)){
-        const id = req.query.id;
-        const email = req.query.email;
-        const adminId = req.query.adminId;
+        const { id, email, adminId } = req.query;
         if(id){
             userModule.get({"id": id}).then(user => {
                 userModule.readMembers(user.id).then(members => {
@@ -165,7 +159,7 @@ router.post("/authenticate", function(req, res){
     });
 });
 router.post("/login", function(req,res){
-    const loginToken = req.body.loginToken;
+    const { loginToken } = req.body;
     let user = userModule.userMethods.verifyToken(loginToken);
     if(user){
         res.send(user);

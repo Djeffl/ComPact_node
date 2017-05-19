@@ -17,12 +17,8 @@ router.route('/')
     .post((req,res) => {
         console.log("Assignments create");
         console.log("req", req.body);
-        const token = req.body.loginToken || null;
-        const adminId = req.body.adminId || null;
-        const memberId = req.body.memberId || null;
-        const itemName = req.body.itemName || null;
-        const description = req.body.description || null;
-        const iconName = req.body.iconName || null;
+        const { token = null, adminId = null, memberId = null, itemName = null, description = null, iconName = null } = req.body;
+        
         // authModule.authMethods.loginTokenToUser(token)
         // .then(user => {
         //     userModule.userMethods.findOne(email).then(member => {
@@ -67,11 +63,7 @@ router.route('/')
 //All
 router.get('/', (req, res) => {
     if(!(Object.keys(req.query).length === 0)){
-        const adminId = req.query.adminId;
-        const loginToken = req.query.loginToken;
-        const userId = req.query.memberId;
-        const id = req.query.id;
-
+        const { adminId, loginToken, memberId, id } = req.query;
 
         if(id){
             assignmentModule.readByUserId(id)
@@ -79,7 +71,6 @@ router.get('/', (req, res) => {
                 res.status(200).send(assignment);
             })
             .catch(error => {
-                
                 console.log(error);
                 res.status(401).send(error);
             });
@@ -108,8 +99,8 @@ router.get('/', (req, res) => {
                 res.send(error);
             });
         }
-        else if(userId) {
-            assignmentModule.readByUserId(userId)
+        else if(memberId) {
+            assignmentModule.readByUserId(memberId)
             .then(assignments => {
                 res.status(200).send(assignments);
             })
@@ -135,12 +126,12 @@ router.get('/', (req, res) => {
 // Update===============================
 // =====================================
 router.put('/:id', (req,res) => {
-    const id = req.params.id;
+    const { id } = req.params;
     const obj = req.body;
     //Remove all null values
     Object.keys(obj).forEach(k => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
     console.log("obj ", obj);
-    assignmentModule.assignmentMethods.update(id, obj)
+    assignmentModule.update(id, obj)
     .then(assignment => {
         res.status(200).send(assignment);
     })
@@ -152,8 +143,8 @@ router.put('/:id', (req,res) => {
 // Delete===============================
 // =====================================
 router.delete('/:id', (req,res) => {
-    const id = req.params.id;
-    assignmentModule.assignmentMethods.delete(id)
+    const { id } = req.params;
+    assignmentModule.delete(id)
     .then(response => {
         const data = {
             "success": true
@@ -169,7 +160,7 @@ router.delete('/:id', (req,res) => {
 
 //REMOVE
 router.post('/deleteall', (req,res) => {
-    assignmentModule.assignmentMethods.deleteAll()
+    assignmentModule.deleteAll()
     .then(response => {
         res.status(200).send(response);
 

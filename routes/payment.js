@@ -35,12 +35,7 @@ router.post('/', upload.single("attachment"), (req,res, next) => {
         console.log("req file");
         console.log(req.file);
 
-        const name = req.body.name || null;
-        const description = req.body.description || null;
-        const price = req.body.price || null;
-        const adminId = req.body.adminId || null;
-        const memberId = req.body.memberId || null;
-        const createdAt = req.body.createdAt || null;
+        const { name = null, description = null, price = null, adminId = null, memberId = null, createdAt = null } = req.body;
         const path = req.file.filename || null;
     /**
      * Params = name, description, price, adminId, memberId
@@ -62,19 +57,14 @@ router.post('/', upload.single("attachment"), (req,res, next) => {
 router.get('/', (req, res) => {
     //check Query params
     if(!(Object.keys(req.query).length === 0)){
-        const adminId = req.query.adminId;
-        const loginToken = req.query.loginToken;
-        const userId = req.query.memberId;
-        const id = req.query.id;
-
+        const { adminId, loginToken, memberId, id } = req.query;
         //If id get payment itself
         if(id){
             paymentModule.readById(id)
             .then(payment => {
                 res.status(200).send(payment);
             })
-            .catch(error => {
-                
+            .catch(error => {  
                 console.log(error);
                 res.status(401).send(error);
             });
@@ -83,7 +73,6 @@ router.get('/', (req, res) => {
         else if(adminId){
             paymentModule.readByAdminId(adminId)
             .then(payments => {
-                console.log(payments);
                 res.status(200).send(payments);
             })
             .catch(error => {
@@ -92,7 +81,7 @@ router.get('/', (req, res) => {
         }
         // ???
         else if(loginToken){
-            authModule.authMethods.loginTokenToUser(loginToken)
+            authenticationService.loginTokenToUser(loginToken)
             .then(user => {
                 Assignment.find({adminId : user.id})
                 .then(assignment => {
@@ -107,8 +96,8 @@ router.get('/', (req, res) => {
             });
         }
         //If userId get all payments of user
-        else if(userId) {
-            paymentModule.readByUserId(userId)
+        else if(memberId) {
+            paymentModule.readByUserId(memberId)
             .then(assignments => {
                 res.status(200).send(assignments);
             })
@@ -136,7 +125,7 @@ router.get('/', (req, res) => {
 // Update===============================
 // =====================================
 router.put('/:id', (req,res) => {
-    const id = req.params.id;
+    const { id } = req.params;
     let obj = req.body;
     obj.id = null;
     //Remove all null values
@@ -155,14 +144,13 @@ router.put('/:id', (req,res) => {
 // Delete===============================
 // =====================================
 router.delete('/:id', (req,res) => {
-    const id = req.params.id;
+    const { id } = req.params;
     paymentModule.delete(id)
     .then(response => {
         const data = {
             "success": true
         };
         res.status(200).send(data);
-
     })
     .catch(error => {
         console.log(error);

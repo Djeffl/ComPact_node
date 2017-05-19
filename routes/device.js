@@ -10,9 +10,7 @@ const app = express();
 // =====================================
 router.post('/',(req, res) => {      
     
-    const deviceName = req.body.deviceName;
-    const deviceId   = req.body.deviceId;
-    const registrationId = req.body.registrationId;
+    const { deviceName, deviceId, registrationId } = req.body; 
 
     deviceModule.create(deviceName,deviceId,registrationId)
     .then(device => {
@@ -31,10 +29,7 @@ router.post('/',(req, res) => {
 router.get('/', (req, res) => {
     //check Query params
     if(!(Object.keys(req.query).length === 0)){
-        const adminId = req.query.adminId;
-        const loginToken = req.query.loginToken;
-        const userId = req.query.memberId;
-        const id = req.query.id;
+        const { adminId, loginToken, userId, id } = req.query;
 
         //If id get payment itself
         if(id){
@@ -72,7 +67,7 @@ router.get('/', (req, res) => {
 // Update===============================
 // =====================================
 router.put('/:id', (req,res) => {
-    const id = req.params.id;
+    const { id } = req.params;
     let obj = req.body;
     obj.id = null;
     //Remove all null values
@@ -84,7 +79,7 @@ router.put('/:id', (req,res) => {
 // Delete===============================
 // =====================================
 router.delete('/:id', (req,res) => {
-    const id = req.params.id;
+    const { id } = req.params;
     paymentModule.paymentMethods.delete(id)
     .then(response => {
         const data = {

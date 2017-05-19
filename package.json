@@ -27,6 +27,8 @@
     "http": "0.0.0",
     "https": "^1.0.0",
     "jsonwebtoken": "^7.3.0",
+    "moment": "^2.18.1",
+    "momentjs": "^2.0.0",
     "mongoose": "^4.8.4",
     "mongoose-unique-validator": "^1.0.3",
     "morgan": "~1.0.0",

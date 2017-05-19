@@ -1,10 +1,12 @@
+/**
+ * CREATE
+ */
 const Location = require('./object');
 const mongoose = require('mongoose');
 const notificationService = require('../../services/notification');
 const userModule = require('../user/index');
 const config = require('../../config/constants');
 const jsonRequest = require('../../services/jsonRequest');
-
 module.exports = {
     create,
     readAll,
@@ -14,66 +16,80 @@ module.exports = {
     update,
     remove,
     removeAll,
-    currentLocation
+    sendLocation,
+    sendGeoLocationUpdate
 }
 
-/**
- * CREATE
- */
 function create(adminId, name, city, streetAndNumber, radius, membersIds, latitude, longitude, isGeofence) {
-     //streetAndNumber = streetAndNumber.split(' ').join('+');
-    //  console.log('/maps.googleapis.com/maps/api/geocode/json?address=' + city + ',' + streetAndNumber + '&key=' + config.googleApiKey);
-    //  console.log(streetAndNumber);
-    // let options = {
-       
-    //             host: 'maps.googleapis.com',
-    //             port: 443,
-    //             path: '/maps.googleapis.com/maps/api/geocode/json?address=' + city + ',' + streetAndNumber + '&key=' + config.googleApiKey,
-    //             method: 'GET',
-    //             headers: {
-    //                 'Content-Type': 'application/json'
-    //             }
-    //         };
-    //         jsonRequest.getJSON(options, (statusCode, result) => {
-    //             let locationData = result.results[0].formatted_address.split(',');
-    //             // let street = locationData[0];
-    //             // let city = locationData[1];
-    //             //let city = locationData[2];
-    //             console.log(locationData);
+    return new Promise((resolve, reject) => {
+        streetAndNumber = streetAndNumber.split(' ').join('+');
+        console.log('/maps.googleapis.com/maps/api/geocode/json?address=' + city + ',' + streetAndNumber + '&key=' + config.googleApiKey);
+        console.log(streetAndNumber);
+        let options = {
 
-    if(latitude != 0 && longitude != 0){
-        let newLocation = new Location({
-            adminId: adminId,
-            name: name,
-            city: city,
-            streetAndNumber: streetAndNumber,
-            radius: radius,
-            membersIds: membersIds,
-            latitude: latitude,
-            longitude: longitude,
-            isGeofence: isGeofence 
+            host: 'maps.googleapis.com',
+            port: 443,
+            path: '/maps/api/geocode/json?address=' + city + ',' + streetAndNumber + '&key=' + config.googleApiKey,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+        jsonRequest.getJSON(options, (statusCode, result) => {
+            let locationData = result.results[0].geometry.location;//.formatted_address.split(',');
+
+            let latitude = locationData.lat;
+            let longitude = locationData.lng;
+            // let street = locationData[0];
+            // let city = locationData[1];
+            //let city = locationData[2];
+            console.log("locationData");
+
+            console.log(locationData);
+
+            if (latitude != 0 && longitude != 0) {
+                let newLocation = new Location({
+                    adminId: adminId,
+                    name: name,
+                    city: city,
+                    streetAndNumber: streetAndNumber,
+                    radius: radius,
+                    membersIds: membersIds,
+                    latitude: latitude,
+                    longitude: longitude,
+                    isGeofence: isGeofence
+                });
+                console.log("okeysssss");
+                console.log(newLocation);
+
+                newLocation.save().then(location => {
+                    return resolve(location);
+                }).catch(err => {
+                    return reject(err);
+                });
+            }
+            ;
         });
-        console.log("okey");
-        console.log(newLocation);
-        return newLocation.save(); 
-        
-    }else{
-        let newLocation = new Location({
-            adminId: adminId,
-            name: name,
-            city: city,
-            streetAndNumber: streetAndNumber,
-            radius: radius,
-            membersIds: membersIds,
-            latitude: latitude,
-            longitude: longitude,
-            isGeofence: isGeofence 
-        });
-        console.log("okey");
-        console.log(newLocation);
-        return newLocation.save(); 
-    }
-   // });
+    });
+
+
+    // }else{
+    //     let newLocation = new Location({
+    //         adminId: adminId,
+    //         name: name,
+    //         city: city,
+    //         streetAndNumber: streetAndNumber,
+    //         radius: radius,
+    //         membersIds: membersIds,
+    //         latitude: latitude,
+    //         longitude: longitude,
+    //         isGeofence: isGeofence
+    //     });
+    //     console.log("okeyyy");
+    //     console.log(newLocation);
+    //     return newLocation.save();
+    // }
+    //         });
 
 }
 /**
@@ -149,7 +165,7 @@ function removeAll(){
 /**
  * OTHERS
  */
-function currentLocation(memberId, latitude, longitude) {
+function sendLocation(memberId, latitude, longitude) {
     return new Promise((resolve,reject) => {
         userModule.readByMemberId(memberId)
         .then(admin => {
@@ -179,9 +195,15 @@ function currentLocation(memberId, latitude, longitude) {
                     /**
                      * Push notification
                      */
-                    userModule.readById(memberId).then( member => {
-                        notificationModule.currentLocation(city+ " " + street, member,["d-2Gdu1SdI4:APA91bFCRXFisAi3J9fLQIX_BgJe5C_mlhJX3fQMLAG8ILMWJpOF_Kw2lDPw2mlWMfMqfRMRf0XIUcUfNfYz-mJrIchu-GuHAdU42qnh2b9LyDHUwO-fRc8j_540q_0nX_FUeUbTf0TB"],  (err,devices) => { 
-                        console.log("ik zit in de callback");
+                    userModule.readById(memberId)
+                        .then( member => {
+                            userModule.readByMemberId(memberId)
+                            .then( admin => {
+                                console.log("admin", admin);
+                                notificationService.sendMessage(city+ " " + street, member,[admin.fireBaseToken],  (err,devices) => {
+                                console.log("ik zit in de callback");
+                            });
+
                          });
                     });
                     
@@ -194,5 +216,33 @@ function currentLocation(memberId, latitude, longitude) {
         .catch((err) => {
             reject(err);
         })
+    });
+}
+function sendGeoLocationUpdate(memberId, msg) {
+    return new Promise((resolve, reject) => {
+        userModule.readById(memberId)
+            .then( member => {
+                userModule.readByMemberId(memberId)
+                    .then(admin => {
+                        console.log("FireBaseToken", admin.fireBaseToken);
+
+                        notificationService.sendMessage(msg, member, [admin.fireBaseToken], (err, devices) => {
+                            if(err){
+                                console.log(err);
+                            }
+                            else {
+                                console.log(devices);
+                            }
+                            console.log("ik zit in de callback");
+                        });
+                    })
+                    .catch((err) => {
+
+                        reject(err);
+                    });
+            })
+            .catch( err => {
+                console.log(err);
+            });
     });
 }

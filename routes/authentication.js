@@ -9,7 +9,7 @@ const async = require('async');
 // Resetpw===============================
 // =====================================
 router.get('/', (req,res) => {
-    const email = req.query.email;
+    const { email } = req.query;
     if(email){
         userModule.userMethods.findOne(email)
         .then(user => {
@@ -30,12 +30,8 @@ router.route('/register')
     // Create user
     .post(function(req,res){        
         // let { lastName, firstName, email } = req.body;
+        let { lastName, firstName, email, password, admin } = req.body;
 
-        let lastName = req.body.lastName;
-        let firstName = req.body.firstName;
-        let email = req.body.email;
-        let password = req.body.password;
-        let admin =  req.body.admin;
         userModule.userMethods.findOne(email)
         .then((user) => {
             if(user){                
@@ -63,8 +59,7 @@ router.route('/resetpassword')
     // page
     .get(function(req,res){
         // Todo only for web
-        let email = req.body.email;
-        let newPassword = req.body.password;
+        let { email, newPassword } = req.body;
         authenticationService.resetpw(email, newPassword).then(user => {
             console.log("user ", user);
                 res.send(user);
@@ -76,7 +71,8 @@ router.route('/resetpassword')
 
 router.route('/forgot')
     .post(function(req, res){
-        let email = req.body.email;
+        let { email } = req.body;
+
         authModule.authMethods.forgot(email).then(user => {
             res.send("There has been an email send to reset your password!");
         },error => {

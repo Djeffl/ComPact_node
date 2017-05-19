@@ -63,6 +63,7 @@ function readById(id) {
 }
 
 function readByUserId(userId) {
+	console.log(userId);
 	return Assignment.find({'memberId': userId});	
 }
 
@@ -70,7 +71,7 @@ function readByUserId(userId) {
  * UPDATE
  */
 function update(id, obj){
-	return new Promise((resolve, reject) => {	
+	return new Promise((resolve, reject) => {
 		Assignment.findByIdAndUpdate(id, obj, {new: true},
 		(err, assignment) => {
 				if(err) reject(err);	

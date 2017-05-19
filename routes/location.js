@@ -15,17 +15,11 @@ router.route('/')
     .post((req,res) => {
         console.log("location create");
         console.log("req", req.body);
-        const adminId = req.body.adminId;
-        const name = req.body.name;
-        const city = req.body.city;
-        const streetAndNumber = req.body.streetAndNumber;
-        const radius = req.body.radius;
-        const latitude = req.body.latitude || 0;
-        const longitude = req.body.longitude || 0;
-        const membersIds = req.body.membersIds;
-        const isGeofence = req.body.isGeofence;
+        const { adminId, name, city, streetAndNumber, radius, latitude = 0, longitude = 0, membersIds, isGeofence } = req.body
+        
         locationModule.create(adminId, name, city, streetAndNumber, radius, membersIds,latitude, longitude, isGeofence)
         .then(location => {
+            console.log("ok");
             res.status(201).send(location);
         })
         .catch(err => {
@@ -39,12 +33,7 @@ router.route('/')
 //All
 router.get('/', (req, res) => {
     if(!(Object.keys(req.query).length === 0)){
-        const adminId = req.query.adminId;
-        const loginToken = req.query.loginToken;
-        const userId = req.query.memberId;
-        const isGeofence = req.query.isGeofence;
-
-        const id = req.query.id;
+       const { adminId, loginToken, userId, isGeofence, id, memberId } = req.query;
 
         // if(isGeofence != null) {
 
@@ -94,8 +83,8 @@ router.get('/', (req, res) => {
                 res.send(error);
             });
         }
-        else if(userId) {
-            locationModule.readByUserId(userId)
+        else if(memberId) {
+            locationModule.readByUserId(memberId)
             .then(assignments => {
                 res.status(200).send(assignments);
             })
@@ -121,12 +110,12 @@ router.get('/', (req, res) => {
 // Update===============================
 // =====================================
 router.put('/:id', (req,res) => {
-    const id = req.params.id;
+    const { id } = req.params;
     const obj = req.body;
     //Remove all null values
     Object.keys(obj).forEach(k => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
     console.log("obj ", obj);
-    locationModule.locationMethods.update(id, obj)
+    locationModule.update(id, obj)
     .then(location => {
         res.status(200).send(location);
     })
@@ -138,8 +127,8 @@ router.put('/:id', (req,res) => {
 // Delete===============================
 // =====================================
 router.delete('/:id', (req,res) => {
-    const id = req.params.id;
-    locationModule.locationMethods.delete(id)
+    const { id } = req.params;
+    locationModule.delete(id)
     .then(response => {
         const data = {
             "success": true
@@ -155,10 +144,9 @@ router.delete('/:id', (req,res) => {
 
 //REMOVE
 router.post('/deleteall', (req,res) => {
-    locationModule.locationMethods.deleteAll()
+    locationModule.deleteAll()
     .then(response => {
         res.status(200).send(response);
-
     })
     .catch(error => {
         console.log(error);
@@ -167,12 +155,11 @@ router.post('/deleteall', (req,res) => {
 });
 
 router.post("/current", (req, res) => {
-    const latitude = req.body.latitude;
-    const longitude = req.body.longitude;
+    const { latitude, longitude } = req.body
     console.log(req.body);
     console.log(latitude + " " + longitude);
     const memberId = "58f8688afa3bfe02e185b68c";//req.userId;
-    locationModule.currentLocation(memberId, latitude, longitude);
+    locationModule.sendLocation(memberId, latitude, longitude);
 
 
     console.log(memberId);
@@ -184,28 +171,34 @@ router.post('/InsideOutsideLocation', (req,res) => {
     const memberId = req.body.membersIds[0];
     const locationName = req.body.name;
     const isInsideLocation = req.body.isInLocation;
-    console.log("membmer", memberId);
 
     user.readById(memberId)
     .then( member => {
         var msg;
         if(isInsideLocation){
-            msg = member.firstName + " " + member.lastName + " left " + locationName;
+            msg = member.firstName + " " + member.lastName + " entered " + locationName;
         }
         else {
-           msg = member.firstName + " " + member.lastName + " entered " + locationName;
+           msg = member.firstName + " " + member.lastName + " left " + locationName;
         }
-         
-        console.log("msg ", msg);
-        notification.currentLocation(msg, member, ["d-2Gdu1SdI4:APA91bFCRXFisAi3J9fLQIX_BgJe5C_mlhJX3fQMLAG8ILMWJpOF_Kw2lDPw2mlWMfMqfRMRf0XIUcUfNfYz-mJrIchu-GuHAdU42qnh2b9LyDHUwO-fRc8j_540q_0nX_FUeUbTf0TB"],
-        (err,devices) => { 
-            if(err){
-                console.log("error");
-                console.log(err);
-            }
-            console.log("ik zit in de callback");
-        });
-        console.log("memberrrr FULL", member);
+
+        locationModule.sendGeoLocationUpdate(memberId, msg)
+            .then(successMsg => {
+                console.log(successMsg);
+             })
+            .catch(err => {
+                console.log("err", err);
+            });
+
+        // notification.sendMessage(msg, member, ["dUIfWmp8v6Q:APA91bHbT_8QxL7sNqhwyNTyXCYLhE55ePiqKe9lw__5S903lk_IveHPbB6xExV1EQEbRSzyUUDppFEb1SkrdPZAEpfpLgL48b1t3bcfe-55q7IY1v0X5ess8NzW1IVIM1FP6iLs4D7B"],
+        // (err,devices) => {
+        //     if(err){
+        //         console.log("error");
+        //         console.log(err);
+        //     }
+        //     console.log("ik zit in de callback");
+        // });
+        // console.log("memberrrr FULL", member);
     })
     .catch((err) => {
         console.log(err);

@@ -11,5 +11,6 @@ module.exports = {
     update: functions.update,
     remove: functions.remove,
     removeAll: functions.removeAll,
-    currentLocation: functions.currentLocation
+    sendLocation: functions.sendLocation,
+    sendGeoLocationUpdate: functions.sendGeoLocationUpdate
 }

@@ -4,7 +4,8 @@ var async = require('async');
 var ejs = require("ejs");
 var path = require("path");
 var fs =require("fs");
-var userModule = require("../user/index");
+var userModule = require('../user/index');
+var moment = require('moment');
 
 module.exports = {
     create,
@@ -23,7 +24,10 @@ module.exports = {
 function create(name, description, price, adminId, memberId, createdAt, path) {
 	return new Promise((resolve, reject) => {
 		if(adminId == null){
-			userModule.get({'memberId':memberId})
+			console.log("CREATED AT", createdAt);
+			createdAt = moment(createdAt, ["DD-MM-YYYY HH:mm:ss", "MM-DD-YYYY HH:mm"]);
+			console.log("createdAt NOw", createdAt);
+			userModule.readByMemberId(memberId)
 			.then(user => {
 				console.log(adminId);
 				adminId = user.adminId;
@@ -41,7 +45,6 @@ function create(name, description, price, adminId, memberId, createdAt, path) {
 						path: path
 					}
 				});
-				console.log()
 				console.log("getting saved...");
 				resolve(newPayment.save());
 			})
