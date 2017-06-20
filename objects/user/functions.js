@@ -20,7 +20,7 @@ module.exports = {
 	readById, 
 	update,
 	remove
-}
+};
 
 /**
  * CREATE
@@ -44,10 +44,9 @@ function create(firstName, lastName, email, password) {
 					reject(err);
 				}
 				//For mail on create
-				const transporter = mailConfig.transporter();
-				const  html = '<p>Succesfully created an account!<p> </br><p>' + user + '</p>';
-				const options = mailConfig.mailOptions(newUser.email,'Welcome to ComPact!', null, html);
-				mail.sendMail(transporter, options)
+                const  html = '<p>Succesfully created an account!<p> </br><p>' + user + '</p>';
+				const options = mail.options(newUser.email, "Welcome to ComPact", null, html);
+				mail.sendMail(options)
 				.then(() => {
 					resolve(user);						
 				})
@@ -96,8 +95,12 @@ function createMember(adminId, firstName, lastName, email, password) {
 				// 	console.log("user", user);
 				// 	resolve(user);
 				// });
-				User.findById(adminId).then(admin => {
-					if(admin.membersIds=== undefined || admin.membersIds === null){
+				User.findById(adminId)
+				.then( admin => {
+					if(!admin) {
+						return;
+					}
+					if(!admin.membersIds){
 						admin.membersIds = [];
 					}
 					admin.membersIds.push(user.id);

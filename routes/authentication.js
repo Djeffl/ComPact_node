@@ -32,7 +32,7 @@ router.route('/register')
         // let { lastName, firstName, email } = req.body;
         let { lastName, firstName, email, password, admin } = req.body;
 
-        userModule.userMethods.findOne(email)
+        userModule.readByEmail(email)
         .then((user) => {
             if(user){                
                 return;
@@ -92,6 +92,7 @@ router.post("/login", function(req, res){
             res.send(user);
         })
         .catch(err => {
+            console.log("authention route");
             res.status(402).send(error);
         });
     }
@@ -125,9 +126,11 @@ router.post("/login", function(req, res){
                 res.send(error);
             });
             res.send(user);
-        },error => {
-            res.status(409).send(error);
-        });
+        })
+        .catch(err => {
+            console.log("is in the error null ss")
+            res.send(null);
+        })
     }
 });
 

@@ -19,7 +19,6 @@ function transporter(){
         pass: password
         }
     });
-
     return transporter
 }
 
@@ -37,14 +36,12 @@ function options(to, subject, text, html){
 };
 
 //Send mail with defined transport object
-function sendMail(transporter, mailOptions){
+function sendMail(mailOptions){
     return new Promise((resolve,reject) => {
-        transporter.sendMail(mailOptions, (error, info) => {
+        transporter().sendMail(mailOptions, (error, info) => {
             if (error) {
-                console.log('this is bad');
                 return reject(error);
             }
-            console.log("ok we are there");
             return resolve(info);
         });
         

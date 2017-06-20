@@ -25,17 +25,19 @@ function create(adminId, name, city, streetAndNumber, radius, membersIds, latitu
         streetAndNumber = streetAndNumber.split(' ').join('+');
         console.log('/maps.googleapis.com/maps/api/geocode/json?address=' + city + ',' + streetAndNumber + '&key=' + config.googleApiKey);
         console.log(streetAndNumber);
+        let pathUrl = ('/maps/api/geocode/json?address=' + city + ',' + streetAndNumber + '&key=' + config.googleApiKey).replace(/\s/g,'');
         let options = {
 
             host: 'maps.googleapis.com',
             port: 443,
-            path: '/maps/api/geocode/json?address=' + city + ',' + streetAndNumber + '&key=' + config.googleApiKey,
+            path: pathUrl,
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
             }
         };
         jsonRequest.getJSON(options, (statusCode, result) => {
+            console.log(result.results[0]);
             let locationData = result.results[0].geometry.location;//.formatted_address.split(',');
 
             let latitude = locationData.lat;
@@ -169,11 +171,15 @@ function sendLocation(memberId, latitude, longitude) {
     return new Promise((resolve,reject) => {
         userModule.readByMemberId(memberId)
         .then(admin => {
+            console.log("memberId", memberId);
             console.log("admin found!");
+            console.log("path", '/maps/api/geocode/json?latlng=' + latitude + ',' + longitude + '&key=' + config.googleApiKey)
+            console.log(admin);
+            let pathUrl = ('/maps/api/geocode/json?latlng=' + latitude + ',' + longitude + '&key=' + config.googleApiKey).replace(/\s/g,'');
             let options = {
                 host: 'maps.googleapis.com',
                 port: 443,
-                path: '/maps/api/geocode/json?latlng=' + latitude + ',' + longitude + '&key=' + config.googleApiKey,
+                path: pathUrl,
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -186,8 +192,8 @@ function sendLocation(memberId, latitude, longitude) {
                 //let city = locationData[2];
                 console.log("okeotjeiotnoi");
 
-                // console.log(admin);
-                // console.log(admin.id);
+                 console.log(admin);
+                 console.log(admin.id);
                 // console.log(admin.fireBaseToken)
                 create(admin.id, "I Am Here", city, street, 0, memberId, latitude, longitude, false)
                 .then(response => {
@@ -202,6 +208,7 @@ function sendLocation(memberId, latitude, longitude) {
                                 console.log("admin", admin);
                                 notificationService.sendMessage(city+ " " + street, member,[admin.fireBaseToken],  (err,devices) => {
                                 console.log("ik zit in de callback");
+                                return resolve(response);
                             });
 
                          });

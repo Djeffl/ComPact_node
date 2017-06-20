@@ -9,7 +9,7 @@ const userSchema = mongoose.Schema({
     firstName: {type:String, required: true},
     lastName: {type:String, required: true},
     email: { type: String, required: true, index: { unique: true }},
-    password: { type: String, required: true, select: false },
+    password: { type: String, required: true},// select: false },
     admin: {type: Boolean, required: true},
     token: {
       body: {type:String, required: false},
@@ -17,26 +17,32 @@ const userSchema = mongoose.Schema({
     },
     membersIds: {type: Array, required: false},
     refreshToken: {type: String, required: false},
-    fireBaseToken: {type: String, required:false}
+    fireBaseToken: {type: String, required:false},
+    image: {
+        path: {type:String, required: false}
+    }
     // firstLogin: Boolean,
 });
 
 //Define encryption for password
-userSchema.pre('save', function(next) {
-  var user = this;
+// userSchema.pre('save', function(next) {
+//   var user = this;
 
-  if (!user.isModified('password')) return next();
+  // if (!user.isModified('password')){
+  //   return next();
+  // }
+  // else{
+  // bcrypt.genSalt(SALT_FACTOR, function(err, salt) {
+  //   if (err) return next(err);
 
-  bcrypt.genSalt(SALT_FACTOR, function(err, salt) {
-    if (err) return next(err);
-
-    bcrypt.hash(user.password, salt, null, function(err, hash) {
-      if (err) return next(err);
-      user.password = hash;
-      next();
-    });
-  });
-});
+  //   bcrypt.hash(user.password, null, null, function(err, hash) {
+  //     if (err) return next(err);
+  //     user.password = hash;
+  //     next();
+  //   });
+  //   });
+  // }
+//});
 
 /**
  * Plugin for unique
@@ -53,14 +59,22 @@ userSchema.plugin(uniqueValidator);
  */
 userSchema.methods.validPassword = function(password){
   return new Promise((resolve, reject) => {
-    bcrypt.compare(password, this.password, (err, match) => {
-      if(err){
-        reject(err);
-      }
-      else{
-        resolve(match);
-      }
-  });
+    if(password == this.password){
+      resolve(true);
+    }
+    else {
+      resolve(false);
+    }
+    // bcrypt.compare(password, this.password, (err, match) => {
+    //   if(err){
+    //     console.log("err", err);
+    //     reject(err);
+    //   }
+    //   else{
+    //     console.log("matc", match)
+    //     resolve(match);
+    //   }
+  // });
 });
 }
 

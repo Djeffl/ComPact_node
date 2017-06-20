@@ -94,6 +94,7 @@ function login(email, password) {
 				Promise.reject("User does not exist");
 			}
 			//Compare password
+			console.log("pass", password);
 			user.validPassword(password)
 			.then((isMatch) => {
 				//Password is valid
@@ -118,12 +119,16 @@ function login(email, password) {
 				}
 				//Password is invalid
 				else {
-					Promise.reject("Wrong password");
+					return reject(null);//Promise.reject("Wrong password");
 				}
-			}).catch((err) => {
+			})
+			.catch((err) => {
 				reject(err);
-			});
-		});
+			})
+		}).catch((err) => {
+			console.log("we zitten in de cathc");
+				reject(err);
+			});;
 	});
 }
 

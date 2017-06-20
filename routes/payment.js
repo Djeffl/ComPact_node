@@ -36,7 +36,11 @@ router.post('/', upload.single("attachment"), (req,res, next) => {
         console.log(req.file);
 
         const { name = null, description = null, price = null, adminId = null, memberId = null, createdAt = null } = req.body;
-        const path = req.file.filename || null;
+        let path = null;
+        if (req.file){
+            path = req.file.filename;
+        }
+    
     /**
      * Params = name, description, price, adminId, memberId
      */
@@ -145,7 +149,7 @@ router.put('/:id', (req,res) => {
 // =====================================
 router.delete('/:id', (req,res) => {
     const { id } = req.params;
-    paymentModule.delete(id)
+    paymentModule.remove(id)
     .then(response => {
         const data = {
             "success": true

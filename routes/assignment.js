@@ -18,7 +18,7 @@ router.route('/')
         console.log("Assignments create");
         console.log("req", req.body);
         const { token = null, adminId = null, memberId = null, itemName = null, description = null, iconName = null } = req.body;
-        
+        console.log(itemName + " " + description + " " + adminId);
         // authModule.authMethods.loginTokenToUser(token)
         // .then(user => {
         //     userModule.userMethods.findOne(email).then(member => {
@@ -144,7 +144,7 @@ router.put('/:id', (req,res) => {
 // =====================================
 router.delete('/:id', (req,res) => {
     const { id } = req.params;
-    assignmentModule.delete(id)
+    assignmentModule.remove(id)
     .then(response => {
         const data = {
             "success": true

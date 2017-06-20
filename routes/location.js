@@ -128,7 +128,7 @@ router.put('/:id', (req,res) => {
 // =====================================
 router.delete('/:id', (req,res) => {
     const { id } = req.params;
-    locationModule.delete(id)
+    locationModule.remove(id)
     .then(response => {
         const data = {
             "success": true
@@ -158,9 +158,10 @@ router.post("/current", (req, res) => {
     const { latitude, longitude } = req.body
     console.log(req.body);
     console.log(latitude + " " + longitude);
-    const memberId = "58f8688afa3bfe02e185b68c";//req.userId;
-    locationModule.sendLocation(memberId, latitude, longitude);
-
+    const memberId = req.body.adminId;//"58f8688afa3bfe02e185b68c";//req.userId;
+    locationModule.sendLocation(memberId, latitude, longitude).then(response => {
+        res.send(response);
+    });
 
     console.log(memberId);
 

@@ -6,73 +6,78 @@ const userModule = require('../objects/user/index');
 let bcrypt = require('bcrypt-nodejs');
 let async = require('async');
 let crypto = require('crypto');
+let multer = require('multer');
 // =====================================
 // New =================================
 // =====================================
-router.route('/create')
-    // page
-    .get(function(req,res){
-        // Todo only for web
-        res.send('Create user test');
-    })
-    // Create user
-    .post(function(req,res){        
-        console.log(req.body);
-        // let lastName = req.body.lastName;
-        // let firstName = req.body.firstName;
-        // let email = req.body.email;
-        // let password = req.body.password;
-        // let admin =  req.body.admin;
-        let user = req.body;
-        
-        userModule.create(user)
-        .then((user) => {
-            console.log("solved");
-            res.status(200).send({
-                user: user
-            });
-        }, error => {
-            console.log("error");
-            res.status(400).send(error);
-        });
-    });
-    router.route('/addmember')
-        .post((req,res) => {
-            let { firstName, lastName, email, password,adminId } = req.body;
-            // authModule.authMethods.loginTokenToId(loginToken).then(adminId => {
-            //     console.log("adminId", adminId);
-                userModule.addMember(adminId, firstName, lastName, email, password)
-                .then(member => {
-                res.send(member);
-            })
-            .catch(err => {
-                    console.log(err);
-                    res.status(401).send(err);
-            });
-            // },err => {
-            //     res.status(401).send(err);
-            // });
-            
+let storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    console.log("ok desti");
+    cb(null, './public/uploads/profiles')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  }
+});
 
-            
+let upload = multer({storage: storage});
+
+router.route('/')
+// Create user
+.post(function(req,res){
+    let lastName = req.body.lastName;
+    let firstName = req.body.firstName;
+    let email = req.body.email;
+    let password = req.body.password;
+
+    userModule.create(firstName, lastName, email, password)
+    .then((user) => {
+        res.status(200).send({
+            user: user
         });
-    
-    router.post('/test', (req, res) => {
-        console.log(req.body);
-        userModule.readByMemberId(req.body.memberId)
-        .then(admin => {
-            res.send(admin);
+    }, error => {
+        res.status(400).send(error);
+    });
+});
+router.route('/addmember')
+    .post((req,res) => {
+        let { firstName, lastName, email, password,adminId } = req.body;
+        if(!adminId) {
+            res.status(401).send("adminId obligated");
+        }
+        // authModule.authMethods.loginTokenToId(loginToken).then(adminId => {
+        //     console.log("adminId", adminId);
+            userModule.addMember(adminId, firstName, lastName, email, password)
+            .then(member => {
+            res.send(member);
         })
         .catch(err => {
-            res.send(err);
+                res.status(401).send(err);
         });
+        // },err => {
+        //     res.status(401).send(err);
+        // });
+
+
+
     });
+
+router.post('/test', (req, res) => {
+    console.log(req.body);
+    userModule.readByMemberId(req.body.memberId)
+    .then(admin => {
+        res.send(admin);
+    })
+    .catch(err => {
+        res.send(err);
+    });
+});
 
     router.get('/', (req, res) => {
     if(!(Object.keys(req.query).length === 0)){
         const { id, email, adminId } = req.query;
         if(id){
-            userModule.get({"id": id}).then(user => {
+            userModule.readById(id).then(user => {
                 userModule.readMembers(user.id).then(members => {
                     user = user.toJSON();
                     user.members = members;
@@ -81,8 +86,8 @@ router.route('/create')
                     res.send(err);
                 });
             }, error => {
-                console.log(error);
-                res.status(401).send(error);
+                console.log("No match found");
+                res.status(401).send("No match found");
             });
         }
         else if(adminId){
@@ -174,15 +179,24 @@ router.post("/login", function(req,res){
 //   req.logout();
 //   res.send("u have been logged out");  
 // });
-router.put('/', (req, res) => {
-    const id = req.params.id;
+router.put('/:id', upload.single("attachment"), (req, res, next) => {
+    const {id} = req.params;
     let obj = req.body;
+    //const path = req.file.filename || null;
+    //obj.image.path = path;
     obj.id = null;
     //Remove all null values
     Object.keys(obj).forEach(k => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
     console.log("obj ", obj);
 
-    userModule.userMethods.update(id, obj)
+    // if(obj.password){
+    //         bcrypt.hash(obj.password, null, null, function(err, hash) {
+    //         if (err) return next(err);
+    //         //obj.password = hash;
+    //         });
+    // }
+
+    userModule.update(id, obj)
     .then(user => {
         console.log("updated: " + user);
         res.status(200).send(user);
@@ -192,5 +206,22 @@ router.put('/', (req, res) => {
     }); 
 });
 
+// =====================================
+// Delete===============================
+// =====================================
+router.delete('/:id', (req,res) => {
+    const { id } = req.params;
+    userModule.delete(id)
+        .then(response => {
+            const data = {
+                "success": true
+            };
+            res.status(200).send(data);
+        })
+        .catch(error => {
+            console.log(error);
+            res.status(401).send(error);
+        });
+});
 
 module.exports = router;

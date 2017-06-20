@@ -10,7 +10,8 @@ module.exports = {
     readByMemberId: functions.readByMemberId,
     readMembers: functions.readMembers,
     update: functions.update,
-    addMember: functions.addMember,
-    getMembers: functions.getMembers
+    delete: functions.remove,
+    addMember: functions.createMember,
+    getMembers: functions.readMembers
     //Todo Delete
 }

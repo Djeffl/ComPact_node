@@ -1,16 +1,19 @@
-const jwt = require('jsonwebtoken');
-const secret = require('../config/constants').secret;
-const User   = require('../objects/user').object;
+let jwt = require('jsonwebtoken');
+let secret = require('../config/constants').secret;
+let User   = require('../objects/user/object');
 
 module.exports = {
     verify,
     createRefresh,
-    createLogin
-};
+    createLogin,
+}
+function derp(){
+    console.log("okookoko");
+}
 
 function verify(req, res, next){
     const token = req.body.loginToken;
-    jwt.verify(token, secret, 
+    jwt.verify(token, secret,
     (err, tokenBody) => {
         if(err){
             res.send("Invalid");
@@ -21,7 +24,7 @@ function verify(req, res, next){
     });
 }
 
-function createRefresh(email){
+function createRefresh(email) {
     return new Promise((resolve,reject) => {
         jwt.sign({'email': email,'type': 'refresh'}, secret,{
                 expiresIn : 100
@@ -32,9 +35,10 @@ function createRefresh(email){
         });
     });
 }
+
 function createLogin(refreshToken){
     return new Promise((resolve, reject) => {
-        User.findOne({refreshToken: refreshToken}, 
+        User.findOne({refreshToken: refreshToken},
         (err, user) => {
             console.log("user ", user);
             if(user == null){
@@ -46,13 +50,13 @@ function createLogin(refreshToken){
                     let idUser = user.id;
                     jwt.sign({ 'id': idUser, 'type': "login"}, secret, {
                         expiresIn : 60*60*24*7 //7 days
-                    }, (err, token) =>{					
+                    }, (err, token) =>{
                     if(err){ console.log(error); reject(error); }
                     resolve(token);
                     });
                 }
             }
-            
+
         });
     });
 }

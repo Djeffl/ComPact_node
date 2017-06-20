@@ -5,7 +5,8 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "mocha './test/**/*.spec.js'"
   },
   "keywords": [
     "compact"
@@ -17,6 +18,7 @@
     "bcrypt-nodejs": "0.0.3",
     "bluebird": "^3.4.7",
     "body-parser": "^1.16.1",
+    "chai-as-promised": "^6.0.0",
     "cookie-parser": "^1.4.3",
     "cookieparser": "^0.1.0",
     "crypto": "0.0.3",
@@ -44,9 +46,12 @@
     "uuid": "^3.0.1"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-http": "^3.0.0",
     "grunt": "^1.0.1",
     "mocha": "^3.2.0",
     "nodemon": "^1.11.0",
-    "should": "^11.2.0"
+    "should": "^11.2.0",
+    "sinon": "^2.3.1"
   }
 }
