@@ -5,7 +5,8 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "mocha './test/**/*.spec.js'"
   },
   "keywords": [
     "compact"
@@ -17,16 +18,24 @@
     "bcrypt-nodejs": "0.0.3",
     "bluebird": "^3.4.7",
     "body-parser": "^1.16.1",
+    "chai-as-promised": "^6.0.0",
     "cookie-parser": "^1.4.3",
     "cookieparser": "^0.1.0",
     "crypto": "0.0.3",
     "ejs": "^2.5.6",
     "express": "^4.14.1",
     "express-session": "^1.15.1",
+    "formidable": "^1.1.1",
+    "http": "0.0.0",
+    "https": "^1.0.0",
     "jsonwebtoken": "^7.3.0",
+    "moment": "^2.18.1",
+    "momentjs": "^2.0.0",
     "mongoose": "^4.8.4",
     "mongoose-unique-validator": "^1.0.3",
     "morgan": "~1.0.0",
+    "multer": "^1.3.0",
+    "node-gcm": "^0.14.6",
     "node-uuid": "^1.4.8",
     "nodemailer": "^3.1.3",
     "passport": "^0.1.18",
@@ -37,9 +46,12 @@
     "uuid": "^3.0.1"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-http": "^3.0.0",
     "grunt": "^1.0.1",
     "mocha": "^3.2.0",
     "nodemon": "^1.11.0",
-    "should": "^11.2.0"
+    "should": "^11.2.0",
+    "sinon": "^2.3.1"
   }
 }
